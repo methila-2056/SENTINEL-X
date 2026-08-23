@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+.installed.cfg
+*.manifest
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+
+# Type checking / linting caches
+.mypy_cache/
+.ruff_cache/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Datasets (large, never commit raw/processed data)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Model artifacts
+models/*.pkl
+models/*.pt
+models/*.onnx
+!models/.gitkeep
+mlruns/
+mlartifacts/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Node (apps/web)
+node_modules/
+apps/web/dist/
+apps/web/build/
+*.tsbuildinfo
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+
+# MLflow
+mlflow.db
