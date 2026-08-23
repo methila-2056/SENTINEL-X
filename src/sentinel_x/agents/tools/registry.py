@@ -71,7 +71,7 @@ def build_default_tools() -> dict[str, Tool]:
     from sqlalchemy import select
 
     from sentinel_x.common.db import get_sync_session
-    from sentinel_x.data.db.models import EventRow, IncidentRow
+    from sentinel_x.data.db.models import IncidentRow, SecurityEventRow
 
     def get_incident(incident_id: str):
         with get_sync_session() as session:
@@ -95,7 +95,9 @@ def build_default_tools() -> dict[str, Tool]:
             if incident is None:
                 return {"error": f"unknown incident {incident_id}"}
             ids = (incident.correlated_event_ids or [])[: max(limit, 1)]
-            rows = session.scalars(select(EventRow).where(EventRow.event_id.in_(ids))).all()
+            rows = session.scalars(
+                select(SecurityEventRow).where(SecurityEventRow.event_id.in_(ids))
+            ).all()
             return _events_to_dicts(rows)
 
     def query_events(
@@ -104,7 +106,11 @@ def build_default_tools() -> dict[str, Tool]:
         event_type: str | None = None,
         limit: int = 25,
     ):
-        stmt = select(EventRow).order_by(EventRow.timestamp.desc()).limit(max(limit, 1) * 3)
+        stmt = (
+            select(SecurityEventRow)
+            .order_by(SecurityEventRow.timestamp.desc())
+            .limit(max(limit, 1) * 3)
+        )
         with get_sync_session() as session:
             rows = session.scalars(stmt).all()
             filtered = [

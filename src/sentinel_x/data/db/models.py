@@ -41,13 +41,6 @@ def _now() -> datetime:
     return datetime.now(UTC)
 
 
-class TSVector(UserDefinedType):
-    """PostgreSQL tsvector type for full-text search columns."""
-
-    def get_col_spec(self) -> str:
-        return "tsvector"
-
-
 class Base(DeclarativeBase):
     pass
 
