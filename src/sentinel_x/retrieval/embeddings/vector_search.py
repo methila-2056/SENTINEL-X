@@ -20,10 +20,10 @@ def vector_search(
             """
             SELECT id, source, document_type, external_id, title,
                    left(content, 1200) AS content,
-                   1 - (embedding <=> :vec) AS score
+                   1 - (embedding <=> CAST(:vec AS vector)) AS score
             FROM documents
-            WHERE (:source IS NULL OR source = :source)
-            ORDER BY embedding <=> :vec
+            WHERE (CAST(:source AS text) IS NULL OR source = :source)
+            ORDER BY embedding <=> CAST(:vec AS vector)
             LIMIT :k
             """
         )

@@ -24,13 +24,24 @@ from sentinel_x.retrieval.reranking.rerank import rerank  # noqa: E402
 
 
 def make_ids_retriever(fn):
-    """Wrap a doc-returning retriever into an id-list-returning function."""
+    """Wrap a doc-returning retriever into an external-id-list function."""
 
     def wrapped(query: str) -> list[str]:
         docs = fn(query, top_k=20)
-        return [d.id for d in docs]
+        return [d.external_id for d in docs if d.external_id]
 
     return wrapped
+
+
+def hybrid_reranked_ids(query: str) -> list[str]:
+    candidates = hybrid_search(query, top_k=20)
+    top = rerank(query, candidates, top_k=10)
+    seen = {d.id for d in top}
+    ordered = [d.external_id for d in top if d.external_id]
+    ordered += [
+        d.external_id for d in candidates if d.id not in seen and d.external_id
+    ]
+    return ordered
 
 
 def main() -> int:
@@ -41,18 +52,11 @@ def main() -> int:
 
     queries = dict(list(GOLDEN_QUERIES.items())[: args.queries])
 
-    def hybrid_reranked(query: str) -> list[str]:
-        candidates = hybrid_search(query, top_k=20)
-        top = rerank(query, candidates, top_k=10)
-        seen = {d.id for d in top}
-        rest = [d.id for d in candidates if d.id not in seen]
-        return [d.id for d in top] + rest
-
     methods = {
         "bm25": make_ids_retriever(fts_search),
         "vector": make_ids_retriever(vector_search),
         "hybrid_rrf": make_ids_retriever(hybrid_search),
-        "hybrid_reranked": lambda q: hybrid_reranked(q),
+        "hybrid_reranked": lambda q: hybrid_reranked_ids(q),
     }
 
     all_results = {}

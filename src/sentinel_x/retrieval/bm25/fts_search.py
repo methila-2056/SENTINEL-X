@@ -29,7 +29,7 @@ def fts_search(query: str, top_k: int = 20, source_filter: str | None = None) ->
                    ts_rank_cd(content_tsv, websearch_to_tsquery('english', :q)) AS score
             FROM documents
             WHERE content_tsv @@ websearch_to_tsquery('english', :q)
-              AND (:source IS NULL OR source = :source)
+              AND (CAST(:source AS text) IS NULL OR source = :source)
             ORDER BY score DESC
             LIMIT :k
             """

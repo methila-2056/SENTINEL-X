@@ -19,10 +19,18 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.types import UserDefinedType
 
 from sentinel_x.common.settings import get_settings
 
 EMBEDDING_DIM = get_settings().embedding_dim
+
+
+class TSVector(UserDefinedType):
+    """PostgreSQL tsvector type for full-text search columns."""
+
+    def get_col_spec(self) -> str:
+        return "tsvector"
 
 
 def _uuid() -> str:
@@ -31,6 +39,13 @@ def _uuid() -> str:
 
 def _now() -> datetime:
     return datetime.now(UTC)
+
+
+class TSVector(UserDefinedType):
+    """PostgreSQL tsvector type for full-text search columns."""
+
+    def get_col_spec(self) -> str:
+        return "tsvector"
 
 
 class Base(DeclarativeBase):
@@ -48,8 +63,8 @@ class Document(Base):
     external_id: Mapped[str | None] = mapped_column(String(100), index=True)  # T1059 / rule uuid
     title: Mapped[str] = mapped_column(Text)
     content: Mapped[str] = mapped_column(Text)
-    content_tsv: Mapped[str] = mapped_column(
-        Text,
+    content_tsv = mapped_column(
+        TSVector(),
         Computed("to_tsvector('english', coalesce(title,'') || ' ' || content)", persisted=True),
     )
     metadata_: Mapped[dict] = mapped_column("metadata", JSONB, default=dict)

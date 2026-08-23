@@ -59,7 +59,7 @@ def upsert_documents(session, rows: list[dict]) -> int:
             index_elements=["source", "external_id", "title"],
             set_={
                 "content": stmt.excluded.content,
-                "metadata_": stmt.excluded.metadata_,
+                "metadata": stmt.excluded.metadata,
                 "embedding": stmt.excluded.embedding,
             },
         )
