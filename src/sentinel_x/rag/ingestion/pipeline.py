@@ -25,14 +25,16 @@ def document_to_rows(doc: DocumentDict, max_chars: int = 900) -> list[dict]:
         meta = dict(doc.get("metadata") or {})
         meta["chunk_index"] = i
         meta["chunk_count"] = len(chunks)
-        rows.append({
-            "source": doc["source"],
-            "document_type": doc["document_type"],
-            "external_id": doc.get("external_id"),
-            "title": doc["title"] if i == 0 else f"{doc['title']} (part {i + 1})",
-            "content": chunk,
-            "metadata_": meta,
-        })
+        rows.append(
+            {
+                "source": doc["source"],
+                "document_type": doc["document_type"],
+                "external_id": doc.get("external_id"),
+                "title": doc["title"] if i == 0 else f"{doc['title']} (part {i + 1})",
+                "content": chunk,
+                "metadata_": meta,
+            }
+        )
     return rows
 
 
@@ -42,7 +44,7 @@ def upsert_documents(session, rows: list[dict]) -> int:
         return 0
     embeddings = embed_texts([r["content"] for r in rows])
     written = 0
-    for row, vector in zip(rows, embeddings):
+    for row, vector in zip(rows, embeddings, strict=True):
         stmt = pg_insert(Document).values(
             source=row["source"],
             document_type=row["document_type"],

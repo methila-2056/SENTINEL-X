@@ -1,9 +1,9 @@
 """Knowledge source parsers producing normalized document dicts."""
 
 import json
-import structlog
 from pathlib import Path
 
+import structlog
 import yaml
 
 logger = structlog.get_logger(__name__)
@@ -25,7 +25,11 @@ def parse_mitre_stix(stix_path: Path) -> list[DocumentDict]:
                 continue
             external_refs = obj.get("external_references", [])
             technique_id = next(
-                (ref.get("external_id") for ref in external_refs if ref.get("source_name") == "mitre-attack"),
+                (
+                    ref.get("external_id")
+                    for ref in external_refs
+                    if ref.get("source_name") == "mitre-attack"
+                ),
                 None,
             )
             kill_chain = [
@@ -43,32 +47,36 @@ def parse_mitre_stix(stix_path: Path) -> list[DocumentDict]:
             ).strip()
             if not description:
                 continue
-            docs.append({
-                "source": "mitre_attack",
-                "document_type": "technique",
-                "external_id": technique_id,
-                "title": f"{technique_id or 'T????'}: {obj.get('name', '')}",
-                "content": content,
-                "metadata": {
-                    "technique_id": technique_id,
-                    "tactics": kill_chain,
-                    "platforms": platforms,
-                    "stix_id": obj.get("id"),
-                },
-            })
+            docs.append(
+                {
+                    "source": "mitre_attack",
+                    "document_type": "technique",
+                    "external_id": technique_id,
+                    "title": f"{technique_id or 'T????'}: {obj.get('name', '')}",
+                    "content": content,
+                    "metadata": {
+                        "technique_id": technique_id,
+                        "tactics": kill_chain,
+                        "platforms": platforms,
+                        "stix_id": obj.get("id"),
+                    },
+                }
+            )
         elif obj_type == "relationship":
             # Keep only mitigates relationships for mitigation context
             if obj.get("relationship_type") != "mitigates":
                 continue
         elif obj_type == "course-of-action":
-            docs.append({
-                "source": "mitre_attack",
-                "document_type": "mitigation",
-                "external_id": obj.get("external_references", [{}])[0].get("external_id"),
-                "title": obj.get("name", "Mitigation"),
-                "content": f"Mitigation: {obj.get('name','')}. {obj.get('description','')}".strip(),
-                "metadata": {"stix_id": obj.get("id")},
-            })
+            docs.append(
+                {
+                    "source": "mitre_attack",
+                    "document_type": "mitigation",
+                    "external_id": obj.get("external_references", [{}])[0].get("external_id"),
+                    "title": obj.get("name", "Mitigation"),
+                    "content": f"Mitigation: {obj.get('name', '')}. {obj.get('description', '')}".strip(),
+                    "metadata": {"stix_id": obj.get("id")},
+                }
+            )
     logger.info("mitre_parsed", documents=len(docs))
     return docs
 
@@ -135,13 +143,15 @@ def load_playbooks(playbook_dir: Path) -> list[DocumentDict]:
     for path in sorted(Path(playbook_dir).glob("*.md")):
         text = path.read_text(encoding="utf-8")
         title = text.splitlines()[0].lstrip("# ").strip() if text.splitlines() else path.stem
-        docs.append({
-            "source": "playbook",
-            "document_type": "playbook",
-            "external_id": path.stem,
-            "title": title,
-            "content": text,
-            "metadata": {"filename": path.name},
-        })
+        docs.append(
+            {
+                "source": "playbook",
+                "document_type": "playbook",
+                "external_id": path.stem,
+                "title": title,
+                "content": text,
+                "metadata": {"filename": path.name},
+            }
+        )
     logger.info("playbooks_parsed", documents=len(docs))
     return docs

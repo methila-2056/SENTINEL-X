@@ -97,7 +97,6 @@ def build_sequences(
             end = min(start + seq_len, n)
             window_toks = toks[start:end]
             window_nums = nums[start:end]
-            pad_amount = seq_len - len(window_toks)
             tok_row = np.full(seq_len, pad_id, dtype=np.int64)
             num_row = np.zeros((seq_len, 4), dtype=np.float32)
             tok_row[: len(window_toks)] = window_toks

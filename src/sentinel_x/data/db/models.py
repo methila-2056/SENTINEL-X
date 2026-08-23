@@ -2,7 +2,7 @@
 knowledge-graph entities/edges, and investigations."""
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
@@ -10,7 +10,6 @@ from sqlalchemy import (
     Boolean,
     Computed,
     DateTime,
-    Enum as SAEnum,
     Float,
     ForeignKey,
     Index,
@@ -31,7 +30,7 @@ def _uuid() -> str:
 
 
 def _now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class Base(DeclarativeBase):
@@ -44,8 +43,8 @@ class Document(Base):
     __tablename__ = "documents"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
-    source: Mapped[str] = mapped_column(String(100))          # mitre_attack / sigma / playbook
-    document_type: Mapped[str] = mapped_column(String(50))     # technique / detection_rule / playbook
+    source: Mapped[str] = mapped_column(String(100))  # mitre_attack / sigma / playbook
+    document_type: Mapped[str] = mapped_column(String(50))  # technique / detection_rule / playbook
     external_id: Mapped[str | None] = mapped_column(String(100), index=True)  # T1059 / rule uuid
     title: Mapped[str] = mapped_column(Text)
     content: Mapped[str] = mapped_column(Text)
@@ -126,7 +125,9 @@ class EntityRow(Base):
     __tablename__ = "entities"
 
     id: Mapped[str] = mapped_column(String(120), primary_key=True)  # e.g. user:alice
-    entity_type: Mapped[str] = mapped_column(String(30), index=True)  # user/host/ip/process/file/technique/ioc
+    entity_type: Mapped[str] = mapped_column(
+        String(30), index=True
+    )  # user/host/ip/process/file/technique/ioc
     name: Mapped[str] = mapped_column(String(300))
     first_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     last_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
@@ -142,15 +143,15 @@ class EdgeRow(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
     src_id: Mapped[str] = mapped_column(ForeignKey("entities.id"), index=True)
     dst_id: Mapped[str] = mapped_column(ForeignKey("entities.id"), index=True)
-    relation: Mapped[str] = mapped_column(String(60), index=True)  # logged_into/executed/connected_to/accessed/associated_with
+    relation: Mapped[str] = mapped_column(
+        String(60), index=True
+    )  # logged_into/executed/connected_to/accessed/associated_with
     weight: Mapped[float] = mapped_column(Float, default=1.0)
     first_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     last_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     properties: Mapped[dict] = mapped_column(JSONB, default=dict)
 
-    __table_args__ = (
-        Index("ix_edges_src_rel_dst", "src_id", "relation", "dst_id"),
-    )
+    __table_args__ = (Index("ix_edges_src_rel_dst", "src_id", "relation", "dst_id"),)
 
 
 class InvestigationRow(Base):
