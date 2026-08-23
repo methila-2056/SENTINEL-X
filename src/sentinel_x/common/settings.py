@@ -19,8 +19,8 @@ class Settings(BaseSettings):
         "postgresql+psycopg://sentinel:sentinel_dev_password@localhost:5432/sentinelx"
     )
 
-    # Redis
-    redis_url: str = "redis://localhost:6379/0"
+    # Redis (host port 6380 mapped to container 6379 to avoid conflicts)
+    redis_url: str = "redis://localhost:6380/0"
 
     # MLflow
     mlflow_tracking_uri: str = "http://localhost:5000"
