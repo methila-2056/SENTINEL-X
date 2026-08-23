@@ -14,7 +14,9 @@ class Settings(BaseSettings):
     )
 
     # Database
-    database_url: str = "postgresql+asyncpg://sentinel:sentinel_dev_password@localhost:5432/sentinelx"
+    database_url: str = (
+        "postgresql+asyncpg://sentinel:sentinel_dev_password@localhost:5432/sentinelx"
+    )
     database_url_sync: str = (
         "postgresql+psycopg://sentinel:sentinel_dev_password@localhost:5432/sentinelx"
     )
