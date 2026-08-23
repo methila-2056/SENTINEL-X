@@ -39,6 +39,9 @@ dependencies = [
     # Observability
     "structlog>=24.4",
 
+    # Config / parsing
+    "pyyaml>=6.0",
+
     # ML core
     "numpy>=1.26,<3",
     "pandas>=2.2",
