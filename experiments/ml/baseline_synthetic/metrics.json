@@ -1,0 +1,54 @@
+{
+  "logistic_regression": {
+    "threshold": 0.5,
+    "precision": 1.0,
+    "recall": 0.44680851063829785,
+    "f1": 0.6176470588235294,
+    "roc_auc": 0.9575208913649025,
+    "pr_auc": 0.9587837601364034,
+    "true_positives": 21,
+    "false_positives": 0,
+    "true_negatives": 1436,
+    "false_negatives": 26,
+    "false_positive_rate": 0.0
+  },
+  "random_forest": {
+    "threshold": 0.5,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "true_positives": 47,
+    "false_positives": 0,
+    "true_negatives": 1436,
+    "false_negatives": 0,
+    "false_positive_rate": 0.0
+  },
+  "xgboost": {
+    "threshold": 0.5,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "true_positives": 47,
+    "false_positives": 0,
+    "true_negatives": 1436,
+    "false_negatives": 0,
+    "false_positive_rate": 0.0
+  },
+  "isolation_forest": {
+    "threshold": 0.5,
+    "precision": 0.3867924528301887,
+    "recall": 0.8723404255319149,
+    "f1": 0.5359477124183006,
+    "roc_auc": 0.9743525158537308,
+    "pr_auc": 0.7823362856228322,
+    "true_positives": 41,
+    "false_positives": 65,
+    "true_negatives": 1371,
+    "false_negatives": 6,
+    "false_positive_rate": 0.04526462395543175
+  }
+}

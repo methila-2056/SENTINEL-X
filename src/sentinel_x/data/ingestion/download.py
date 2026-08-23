@@ -6,7 +6,6 @@ timestamps normalized to UTC). This mirror serves plain HTTP files reliably,
 unlike cicresearch.ca which blocks non-browser clients behind a JS challenge.
 """
 
-import asyncio
 from pathlib import Path
 
 import httpx
