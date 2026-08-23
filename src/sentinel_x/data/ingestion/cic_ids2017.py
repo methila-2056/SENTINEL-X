@@ -14,7 +14,6 @@ import structlog
 
 from sentinel_x.data.preprocessing.cleaning import (
     clean_column_names,
-    parse_mixed_timestamps,
     replace_numeric_junk,
 )
 
@@ -70,15 +69,15 @@ LABEL_MAP = {
 }
 
 
-def load_raw_csvs(raw_dir: Path) -> pd.DataFrame:
-    """Load and concatenate all raw CSVs with cleaned columns."""
-    csv_files = sorted(raw_dir.glob("*.csv"))
-    if not csv_files:
-        raise FileNotFoundError(f"No CSV files found in {raw_dir}")
+def load_raw_files(raw_dir: Path) -> pd.DataFrame:
+    """Load and concatenate all raw parquet files with cleaned columns."""
+    files = sorted(raw_dir.glob("*.parquet"))
+    if not files:
+        raise FileNotFoundError(f"No parquet files found in {raw_dir}")
     frames: list[pd.DataFrame] = []
-    for path in csv_files:
+    for path in files:
         logger.info("loading_raw", file=path.name)
-        df = pd.read_csv(path, encoding="latin-1", low_memory=False)
+        df = pd.read_parquet(path)
         df = clean_column_names(df)
         df["__source_file"] = path.stem
         frames.append(df)
@@ -88,7 +87,7 @@ def load_raw_csvs(raw_dir: Path) -> pd.DataFrame:
 def normalize(raw_dir: Path, out_dir: Path) -> tuple[Path, Path]:
     """Normalize raw CSVs into canonical events + ML feature table."""
     out_dir.mkdir(parents=True, exist_ok=True)
-    df = load_raw_csvs(raw_dir)
+    df = load_raw_files(raw_dir)
 
     # --- Label normalization -------------------------------------------------
     unknown_labels = set(df["Label"].unique()) - set(LABEL_MAP)
@@ -102,9 +101,12 @@ def normalize(raw_dir: Path, out_dir: Path) -> tuple[Path, Path]:
 
     # --- Timestamps ----------------------------------------------------------
     if "Timestamp" in df.columns:
-        ts = parse_mixed_timestamps(df["Timestamp"])
+        ts = pd.to_datetime(df["Timestamp"], errors="coerce", utc=True, dayfirst=False)
+        # Some rows may still be strings with d/m/Y ordering; fall back to dayfirst
+        if ts.isna().mean() > 0.5:
+            ts = pd.to_datetime(df["Timestamp"], errors="coerce", utc=True, dayfirst=True)
     else:
-        raise ValueError("TrafficLabelling CSVs must contain a Timestamp column")
+        raise ValueError("TrafficLabelling files must contain a Timestamp column")
     valid_ts = ts.notna()
 
     # --- Canonical event table -----------------------------------------------
@@ -120,9 +122,7 @@ def normalize(raw_dir: Path, out_dir: Path) -> tuple[Path, Path]:
             "process": None,
             "src_ip": df.get("Source IP"),
             "dst_ip": df.get("Destination IP"),
-            "dst_port": pd.to_numeric(
-                df.get(" Destination Port", df.get("Destination Port")), errors="coerce"
-            ),
+            "dst_port": pd.to_numeric(df.get("Destination Port"), errors="coerce"),
             "file_path": None,
             "bytes_transferred": pd.to_numeric(
                 df.get("Total Length of Fwd Packets"), errors="coerce"
