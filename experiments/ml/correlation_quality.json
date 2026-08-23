@@ -1,0 +1,8 @@
+{
+  "incidents_recovered": 12,
+  "incidents_total": 12,
+  "recovery_rate": 1.0,
+  "mean_boundary_precision": 1.0,
+  "mean_boundary_recall": 1.0,
+  "mean_boundary_f1": 1.0
+}

@@ -38,9 +38,7 @@ def hybrid_reranked_ids(query: str) -> list[str]:
     top = rerank(query, candidates, top_k=10)
     seen = {d.id for d in top}
     ordered = [d.external_id for d in top if d.external_id]
-    ordered += [
-        d.external_id for d in candidates if d.id not in seen and d.external_id
-    ]
+    ordered += [d.external_id for d in candidates if d.id not in seen and d.external_id]
     return ordered
 
 
