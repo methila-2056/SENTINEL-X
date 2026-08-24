@@ -10,35 +10,35 @@ SENTINEL-X detects abnormal enterprise activity with ML, correlates related secu
 
 ```text
 Security Telemetry          Threat Intelligence
-      ¦                            ¦
+      â”‚                            â”‚
       ?                            ?
 Data Pipeline               Document Pipeline
-      ¦                            ¦
+      â”‚                            â”‚
       ?                            ?
 Feature Engineering          Embeddings
-      ¦                            ¦
+      â”‚                            â”‚
       ?                            ?
 ML Detection                PostgreSQL + pgvector
-      ¦                            ¦
+      â”‚                            â”‚
       +----------------------------+
                  ?
           Incident Engine
-                 ¦
+                 â”‚
          +---------------+
          ?               ?
     Knowledge        Hybrid RAG
-      Graph              ¦
-         ¦               ?
+      Graph              â”‚
+         â”‚               ?
          +--------?  Reranker
-                         ¦
+                         â”‚
                          ?
                  Investigation Agent
-                         ¦
+                         â”‚
                    Tool Calling ? Verification
-                         ¦
+                         â”‚
                          ?
                 Evidence-Grounded Report
-                         ¦
+                         â”‚
             +-------------------------+
             ?                         ?
          FastAPI                  React UI
