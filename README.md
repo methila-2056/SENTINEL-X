@@ -1,5 +1,7 @@
 # SENTINEL-X
 
+![CI](https://github.com/methila-2056/SENTINEL-X/actions/workflows/ci.yml/badge.svg) ![CodeQL](https://github.com/methila-2056/SENTINEL-X/actions/workflows/codeql.yml/badge.svg)
+
 **AI-Powered Security Incident Intelligence & Autonomous Investigation Platform**
 
 SENTINEL-X detects abnormal enterprise activity with ML, correlates related security events into incidents, retrieves evidence from a threat-intelligence knowledge base via hybrid RAG, reasons over an entity knowledge graph, and runs a tool-using investigation agent that produces **evidence-grounded incident reports with measurable confidence**.
@@ -8,37 +10,37 @@ SENTINEL-X detects abnormal enterprise activity with ML, correlates related secu
 
 ```text
 Security Telemetry          Threat Intelligence
-      │                            │
-      ▼                            ▼
+      �                            �
+      ?                            ?
 Data Pipeline               Document Pipeline
-      │                            │
-      ▼                            ▼
+      �                            �
+      ?                            ?
 Feature Engineering          Embeddings
-      │                            │
-      ▼                            ▼
+      �                            �
+      ?                            ?
 ML Detection                PostgreSQL + pgvector
-      │                            │
-      └──────────┬─────────────────┘
-                 ▼
+      �                            �
+      +----------------------------+
+                 ?
           Incident Engine
-                 │
-         ┌───────┴───────┐
-         ▼               ▼
+                 �
+         +---------------+
+         ?               ?
     Knowledge        Hybrid RAG
-      Graph              │
-         │               ▼
-         └────────►  Reranker
-                         │
-                         ▼
+      Graph              �
+         �               ?
+         +--------?  Reranker
+                         �
+                         ?
                  Investigation Agent
-                         │
-                   Tool Calling → Verification
-                         │
-                         ▼
+                         �
+                   Tool Calling ? Verification
+                         �
+                         ?
                 Evidence-Grounded Report
-                         │
-            ┌────────────┴────────────┐
-            ▼                         ▼
+                         �
+            +-------------------------+
+            ?                         ?
          FastAPI                  React UI
 ```
 
@@ -97,3 +99,4 @@ Active development. See `docs/architecture/` for design decisions and `docs/expe
 ## License
 
 MIT
+
