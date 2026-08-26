@@ -59,6 +59,24 @@ def start_investigation(
     return InvestigationStatus(job_id=job_id, incident_id=payload.incident_id, state="running")
 
 
+@router.get("", response_model=list[InvestigationStatus])
+def list_investigations(
+    analyst: object = Depends(require_roles(ROLE_ANALYST, ROLE_ADMIN)),
+) -> list[InvestigationStatus]:
+    """List all investigation jobs (newest first)."""
+    jobs = _JOBS.list_jobs()
+    return [
+        InvestigationStatus(
+            job_id=j["job_id"],
+            incident_id=j["incident_id"],
+            state=j["state"],
+            elapsed_s=round(time.time() - j["started"], 1),
+            report=j["report"],
+        )
+        for j in jobs
+    ]
+
+
 @router.get("/{job_id}", response_model=InvestigationStatus)
 def get_status(job_id: str) -> InvestigationStatus:
     job = _JOBS.get(job_id)

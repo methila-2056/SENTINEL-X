@@ -57,6 +57,17 @@ class InMemoryJobStore:
     def count(self) -> int:
         return len(self._jobs)
 
+    def list_jobs(self) -> list[dict[str, Any]]:
+        """Return all jobs sorted by start time (newest first)."""
+        return sorted(
+            [
+                {**v, "job_id": k}
+                for k, v in self._jobs.items()
+            ],
+            key=lambda j: j["started"],
+            reverse=True,
+        )
+
 
 class RedisJobStore:
     """Redis-backed store; each job is a hash with a TTL."""
@@ -106,6 +117,23 @@ class RedisJobStore:
         pipe.hset(key, mapping=mapping)
         pipe.expire(key, JOB_TTL_SECONDS)
         pipe.execute()
+
+    def list_jobs(self) -> list[dict[str, Any]]:
+        """Return all jobs sorted by start time (newest first)."""
+        keys = self._client.keys("investigation:job:*")
+        jobs = []
+        for key in keys:
+            raw = self._client.hgetall(key)
+            if raw:
+                job_id = key.decode().split(":")[-1]
+                jobs.append({
+                    "job_id": job_id,
+                    "incident_id": raw.get("incident_id", ""),
+                    "state": raw.get("state", "running"),
+                    "started": float(raw.get("started", 0.0)),
+                    "report": _decode_report(raw.get("report", "")),
+                })
+        return sorted(jobs, key=lambda j: j["started"], reverse=True)
 
 
 def _decode_report(raw: str) -> dict[str, Any] | None:
