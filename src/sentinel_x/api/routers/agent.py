@@ -6,9 +6,10 @@ import time
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from sentinel_x.api.deps import ROLE_ADMIN, ROLE_ANALYST, require_roles
 from sentinel_x.common.logging import get_logger
 
 logger = get_logger(__name__)
@@ -30,7 +31,10 @@ class InvestigationStatus(BaseModel):
 
 
 @router.post("", response_model=InvestigationStatus)
-def start_investigation(payload: InvestigationStart) -> InvestigationStatus:
+def start_investigation(
+    payload: InvestigationStart,
+    analyst: object = Depends(require_roles(ROLE_ANALYST, ROLE_ADMIN)),
+) -> InvestigationStatus:
     from sentinel_x.agents.workflows.investigator import InvestigatorAgent
 
     job_id = f"job-{uuid.uuid4().hex[:8]}"
