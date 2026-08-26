@@ -3,22 +3,28 @@
 from functools import lru_cache
 
 import structlog
-from sentence_transformers import CrossEncoder, SentenceTransformer
 
 from sentinel_x.common.settings import get_settings
 
 logger = structlog.get_logger(__name__)
 
+# sentence_transformers pulls torch; imported lazily so the retrieval stack
+# stays usable on hosts without a working torch runtime.
+
 
 @lru_cache
-def get_embedder() -> SentenceTransformer:
+def get_embedder():
+    from sentence_transformers import SentenceTransformer
+
     settings = get_settings()
     logger.info("loading_embedder", model=settings.embedding_model)
     return SentenceTransformer(settings.embedding_model)
 
 
 @lru_cache
-def get_reranker() -> CrossEncoder:
+def get_reranker():
+    from sentence_transformers import CrossEncoder
+
     settings = get_settings()
     logger.info("loading_reranker", model=settings.reranker_model)
     return CrossEncoder(settings.reranker_model)

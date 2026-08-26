@@ -24,6 +24,7 @@ class OllamaClient:
         settings = get_settings()
         self.base_url = (base_url or settings.ollama_base_url).rstrip("/")
         self.model = model or settings.ollama_model
+        self.last_usage: dict[str, int] = {}  # prompt/eval token counts of last call
 
     def is_available(self) -> bool:
         try:
@@ -51,14 +52,23 @@ class OllamaClient:
             "options": {
                 "temperature": temperature,
                 "num_predict": num_predict,
-                "num_ctx": 8192,
+                "num_ctx": 4096,
             },
         }
         payload = {k: v for k, v in payload.items() if v is not None}
-        response = httpx.post(f"{self.base_url}/api/chat", json=payload, timeout=180.0)
+        response = httpx.post(f"{self.base_url}/api/chat", json=payload, timeout=420.0)
         if response.status_code != 200:
             raise LLMError(f"Ollama error {response.status_code}: {response.text[:300]}")
-        return str(response.json()["message"]["content"])
+        body = response.json()
+        self.last_usage = {
+            "prompt_tokens": int(body.get("prompt_eval_count") or 0),
+            "completion_tokens": int(body.get("eval_count") or 0),
+            "total_latency_ms": int(
+                (body.get("prompt_eval_duration") or 0) + (body.get("eval_duration") or 0)
+            )
+            // 1_000_000,
+        }
+        return str(body["message"]["content"])
 
     def generate_json(self, system: str, user: str, **kwargs: Any) -> dict[str, Any]:
         raw = self.generate(system, user, json_mode=True, **kwargs)

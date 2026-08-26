@@ -138,7 +138,7 @@ class InvestigatorAgent:
     # ------------------------------------------------------------- internals
     def _next_action(self, transcript: list[dict[str, str]]) -> dict[str, Any]:
         system = PLANNER_SYSTEM.format(tool_docs=self._tool_documentation())
-        history = [{"role": m["role"], "content": m["content"][:4000]} for m in transcript[-8:]]
+        history = [{"role": m["role"], "content": m["content"][:2200]} for m in transcript[-6:]]
         response = self.client.generate(
             system + "\nConversation so far:",
             json.dumps(history[-2:] or [{"role": "user", "content": "begin"}]),
@@ -202,8 +202,8 @@ class InvestigatorAgent:
         return "\n".join(lines)
 
     def _write_report(self, transcript: list[dict[str, str]], incident_id: str) -> dict[str, Any]:
-        evidence_digest = "\n".join(m["content"][:1500] for m in transcript if m["role"] == "user")
-        prompt = f"Incident: {incident_id}\n\nEvidence collected:\n{evidence_digest[:12000]}"
+        evidence_digest = "\n".join(m["content"][:800] for m in transcript if m["role"] == "user")
+        prompt = f"Incident: {incident_id}\n\nEvidence collected:\n{evidence_digest[:6000]}"
         try:
             raw = self.client.generate(REPORT_SYSTEM, prompt, json_mode=True, num_predict=900)
             from sentinel_x.llm.client import _parse_json_object

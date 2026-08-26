@@ -4,7 +4,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-torch = pytest.importorskip("torch")
+try:
+    import torch
+except ImportError:  # pragma: no cover - host may block/omit the torch runtime
+    pytest.skip("torch runtime unavailable on this host", allow_module_level=True)
+
 from torch import nn  # noqa: E402
 
 from sentinel_x.ml.models.sequence_dataset import (  # noqa: E402
