@@ -16,12 +16,12 @@ import sys
 from importlib import import_module
 
 COMMANDS = {
-    "seed":             "sentinel_x.scripts.seed_pipeline",
-    "init-db":          "sentinel_x.scripts.init_db",
-    "create-user":      "sentinel_x.scripts.create_user",
-    "download-cicids":  "sentinel_x.scripts.download_cicids",
+    "seed": "sentinel_x.scripts.seed_pipeline",
+    "init-db": "sentinel_x.scripts.init_db",
+    "create-user": "sentinel_x.scripts.create_user",
+    "download-cicids": "sentinel_x.scripts.download_cicids",
     "download-knowledge": "sentinel_x.scripts.download_knowledge",
-    "generate-synth":   "sentinel_x.scripts.generate_synthetic",
+    "generate-synth": "sentinel_x.scripts.generate_synthetic",
 }
 
 USAGE = """\
