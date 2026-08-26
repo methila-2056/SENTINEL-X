@@ -1,18 +1,15 @@
-"""CLI entry point: download CIC-IDS2017 raw CSVs into data/raw/cicids2017/.
+"""Download CIC-IDS2017 raw CSVs into data/raw/cicids2017/.
 
 Usage:
-    python scripts/download_cicids2017.py [--only FILE ...]
+    sentinelx-download-cicids [--only FILE ...]
 """
 
 import argparse
 import asyncio
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-
-from sentinel_x.common.logging import configure_logging  # noqa: E402
-from sentinel_x.data.ingestion.download import FILES, download_dataset  # noqa: E402
+from sentinel_x.common.logging import configure_logging
+from sentinel_x.data.ingestion.download import FILES, download_dataset
 
 
 def main() -> int:
@@ -30,7 +27,3 @@ def main() -> int:
     downloaded = asyncio.run(download_dataset(raw_dir, only=args.only))
     print(f"Downloaded {len(downloaded)}/{len(FILES or args.only)} files -> {raw_dir}")
     return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())

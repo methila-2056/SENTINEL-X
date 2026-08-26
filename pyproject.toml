@@ -70,6 +70,15 @@ dev = [
     "mypy>=1.11",
 ]
 
+[project.scripts]
+sentinelx              = "sentinel_x.__main__:main"
+sentinelx-seed         = "sentinel_x.scripts.seed_pipeline:main"
+sentinelx-init-db      = "sentinel_x.scripts.init_db:main"
+sentinelx-create-user  = "sentinel_x.scripts.create_user:main"
+sentinelx-download-cicids      = "sentinel_x.scripts.download_cicids:main"
+sentinelx-download-knowledge   = "sentinel_x.scripts.download_knowledge:main"
+sentinelx-generate-synth       = "sentinel_x.scripts.generate_synthetic:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/sentinel_x"]
 

@@ -5,21 +5,18 @@ Sources:
 - SigmaHQ rules repository (detection rules)
 
 Usage:
-    python scripts/download_knowledge.py [--skip-mitre] [--skip-sigma]
+    sentinelx-download-knowledge [--skip-mitre] [--skip-sigma]
 """
 
 import argparse
 import shutil
-import sys
 import zipfile
 from pathlib import Path
 
 import httpx
 import structlog
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-
-from sentinel_x.common.logging import configure_logging  # noqa: E402
+from sentinel_x.common.logging import configure_logging
 
 logger = structlog.get_logger(__name__)
 
@@ -93,7 +90,3 @@ def main() -> int:
     if not args.skip_sigma:
         download_sigma(raw_dir)
     return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
