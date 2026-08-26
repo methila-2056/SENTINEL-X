@@ -33,7 +33,9 @@ PARQUET_MAGIC = b"PAR1"
 
 
 def _looks_like_parquet(head: bytes) -> bool:
-    return head[:4] == PARQUET_MAGIC or b"<html" not in head[:512].lower()
+    # Both conditions required: the file must carry parquet magic AND not be
+    # an HTML error page. `or` here let any non-<html payload pass as valid.
+    return head[:4] == PARQUET_MAGIC and b"<html" not in head[:512].lower()
 
 
 async def download_file(

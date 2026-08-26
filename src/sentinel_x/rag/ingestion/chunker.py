@@ -12,15 +12,16 @@ def chunk_text(
 
     Splits on blank lines first; long paragraphs are hard-split with overlap.
     """
-    text = re.sub(r"\s+", " ", text).strip()
+    text = text.strip()
     if not text:
         return []
-    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()] or [text]
+    # Split on blank lines BEFORE collapsing whitespace, otherwise paragraph
+    # boundaries are destroyed and every document degrades to one hard-split window.
+    paragraphs = [re.sub(r"\s+", " ", p).strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
 
     chunks: list[str] = []
     current = ""
     for para in paragraphs:
-        para = re.sub(r"\s+", " ", para)
         if len(para) > max_chars:
             # Flush current buffer, then slide over the long paragraph
             if current:
