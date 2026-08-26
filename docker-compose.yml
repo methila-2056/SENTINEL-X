@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sentinel_dev_password}
       POSTGRES_DB: ${POSTGRES_DB:-sentinelx}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infrastructure/docker/postgres/init:/docker-entrypoint-initdb.d
@@ -16,20 +16,26 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - backend
 
   redis:
     image: redis:7-alpine
     container_name: sentinelx-redis
     ports:
-      - "6380:6379"
-    command: redis-server --appendonly yes
+      - "127.0.0.1:6380:6379"
+    command: >
+      redis-server --appendonly yes
+      --requirepass ${REDIS_PASSWORD:-sentinelx_redis_dev}
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-sentinelx_redis_dev}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10
+    networks:
+      - backend
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.17.0
@@ -38,9 +44,11 @@ services:
       mlflow server --host 0.0.0.0 --port 5000
       --backend-store-uri sqlite:////mlflow/mlflow.db
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
     volumes:
       - mlflow_data:/mlflow
+    networks:
+      - backend
 
   api:
     build:
@@ -50,17 +58,19 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sentinel}:${POSTGRES_PASSWORD:-sentinel_dev_password}@postgres:5432/${POSTGRES_DB:-sentinelx}
       DATABASE_URL_SYNC: postgresql+psycopg://${POSTGRES_USER:-sentinel}:${POSTGRES_PASSWORD:-sentinel_dev_password}@postgres:5432/${POSTGRES_DB:-sentinelx}
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: redis://:${REDIS_PASSWORD:-sentinelx_redis_dev}@redis:6379/0
       MLFLOW_TRACKING_URI: http://mlflow:5000
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
     ports:
-      - "8001:8000"
+      - "127.0.0.1:8001:8000"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - backend
 
   web:
     build:
@@ -70,9 +80,17 @@ services:
         infra: ./infrastructure
     container_name: sentinelx-web
     ports:
-      - "5173:80"
+      - "127.0.0.1:5173:80"
     depends_on:
       - api
+    networks:
+      - frontend
+
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    driver: bridge
 
 volumes:
   postgres_data:
