@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { clearToken, getToken, observeAuth } from './auth'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { Layout } from './components/Layout'
 import { IncidentDetail } from './pages/IncidentDetail'
 import { Incidents } from './pages/Incidents'
@@ -25,12 +26,14 @@ export default function App() {
   return (
     <BrowserRouter>
       <Layout onLogout={() => clearToken()}>
-        <Routes>
-          <Route path="/" element={<Navigate to="/incidents" replace />} />
-          <Route path="/incidents" element={<Incidents />} />
-          <Route path="/incidents/:id" element={<IncidentDetail />} />
-          <Route path="/knowledge" element={<KnowledgeSearch />} />
-        </Routes>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Navigate to="/incidents" replace />} />
+            <Route path="/incidents" element={<Incidents />} />
+            <Route path="/incidents/:id" element={<IncidentDetail />} />
+            <Route path="/knowledge" element={<KnowledgeSearch />} />
+          </Routes>
+        </ErrorBoundary>
       </Layout>
     </BrowserRouter>
   )
