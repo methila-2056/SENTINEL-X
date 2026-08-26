@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
 
 from sentinel_x.api.deps import get_current_user
+from sentinel_x.api.ratelimit import RateLimitMiddleware
 from sentinel_x.api.routers import agent, events, graph, incidents, search
 
 logger = structlog.get_logger(__name__)
@@ -51,6 +52,7 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(RateLimitMiddleware)
 
     # Mutating endpoints additionally require elevated roles.
     app.include_router(
