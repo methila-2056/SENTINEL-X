@@ -23,7 +23,6 @@ def score_incident(
         sensitive_file_access, privilege_change, data_volume_zscore
     Final risk = weighted blend of ML probability and signal evidence.
     """
-    n = max(len(events), 1)
     auth = events[events["event_type"] == "authentication"]
     failed_ratio = float((auth["action"] == "login_failure").mean()) if len(auth) else 0.0
     has_priv_esc = int((events["event_type"] == "privilege_change").any())

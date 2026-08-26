@@ -33,7 +33,7 @@ class ToolResult:
     error: str | None = None
     evidence_ids: list[str] = field(default_factory=list)
 
-    def to_json(self, limit_chars: int = 6000) -> str:
+    def to_json(self, limit_chars: int = 3500) -> str:
         body = json.dumps(
             {"ok": self.ok, "evidence_ids": self.evidence_ids[:20], "data": self.payload},
             default=str,
@@ -48,7 +48,7 @@ def _events_to_dicts(rows) -> list[dict]:
     for row in rows:
         out.append(
             {
-                "event_id": row.event_id,
+                "event_id": row.id,
                 "timestamp": row.timestamp.isoformat() if row.timestamp else None,
                 "event_type": row.event_type,
                 "action": row.action,
@@ -89,14 +89,14 @@ def build_default_tools() -> dict[str, Tool]:
                 "entities": row.entities,
             }
 
-    def get_incident_events(incident_id: str, limit: int = 40):
+    def get_incident_events(incident_id: str, limit: int = 12):
         with get_sync_session() as session:
             incident = session.get(IncidentRow, incident_id)
             if incident is None:
                 return {"error": f"unknown incident {incident_id}"}
             ids = (incident.correlated_event_ids or [])[: max(limit, 1)]
             rows = session.scalars(
-                select(SecurityEventRow).where(SecurityEventRow.event_id.in_(ids))
+                select(SecurityEventRow).where(SecurityEventRow.id.in_(ids))
             ).all()
             return _events_to_dicts(rows)
 

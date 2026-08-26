@@ -1,7 +1,11 @@
 """Reciprocal Rank Fusion of BM25 + vector search results."""
 
+import structlog
+
 from sentinel_x.retrieval.bm25.fts_search import RetrievedDoc, fts_search
 from sentinel_x.retrieval.embeddings.vector_search import vector_search
+
+logger = structlog.get_logger(__name__)
 
 DEFAULT_RRF_K = 60
 
@@ -30,7 +34,18 @@ def hybrid_search(
     source_filter: str | None = None,
     rrf_k: int = DEFAULT_RRF_K,
 ) -> list[RetrievedDoc]:
-    """BM25 + vector retrieval fused via RRF."""
+    """BM25 + vector retrieval fused via RRF.
+
+    Falls back to BM25-only when the embedding backend is unavailable
+    (e.g. no usable torch runtime), logging a warning instead of failing.
+    """
     fts_results = fts_search(query, top_k=top_k, source_filter=source_filter)
-    vec_results = vector_search(query, top_k=top_k, source_filter=source_filter)
+    try:
+        vec_results = vector_search(query, top_k=top_k, source_filter=source_filter)
+    except Exception as exc:
+        logger.warning(
+            "vector_search_unavailable_falling_back_to_bm25",
+            error=str(exc),
+        )
+        return fts_results[:top_k]
     return rrf_fuse([fts_results, vec_results], k=rrf_k)[:top_k]

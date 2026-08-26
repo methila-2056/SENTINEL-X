@@ -84,7 +84,6 @@ class TestRiskScoring:
         assert scored["severity_label"] in ("high", "critical")
 
     def test_benign_scores_low(self) -> None:
-        t0 = datetime(2026, 8, 3, 9, tzinfo=UTC)
         events = pd.DataFrame(
             [
                 {
