@@ -32,7 +32,7 @@ def query_events(
         ]
         return [
             {
-                "event_id": r.event_id,
+                "event_id": r.id,
                 "timestamp": r.timestamp.isoformat() if r.timestamp else None,
                 "source": r.source,
                 "event_type": r.event_type,
