@@ -15,6 +15,8 @@ class PositionalEncoding(nn.Module):
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         self.register_buffer("pe", pe.unsqueeze(0))
+        # Declares the registered buffer as a plain Tensor for type checkers.
+        self.pe: torch.Tensor
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return x + self.pe[:, : x.size(1)]

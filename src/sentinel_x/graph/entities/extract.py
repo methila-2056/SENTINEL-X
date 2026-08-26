@@ -1,6 +1,7 @@
 """Entity extraction and knowledge-graph construction from event streams."""
 
 import zlib
+from typing import Any
 
 import structlog
 from sqlalchemy import func
@@ -30,8 +31,8 @@ def extract_entities_and_edges(events, session: Session) -> tuple[int, int]:
                 originated_from, targeted_by
     Returns (n_entities_upserted, n_edges_upserted).
     """
-    entities: dict[str, dict] = {}
-    edges: dict[str, dict] = {}
+    entities: dict[str, dict[str, Any]] = {}
+    edges: dict[tuple[str, str, str], dict[str, Any]] = {}
 
     def add_entity(etype: str, name: str | None, seen_at) -> str | None:
         if not name or not isinstance(name, str):

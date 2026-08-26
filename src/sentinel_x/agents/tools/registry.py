@@ -144,7 +144,7 @@ def build_default_tools() -> dict[str, Tool]:
         import pandas as pd
 
         frame = pd.DataFrame(events)
-        risk = float(get_incident(incident_id)["risk_score"])  # type: ignore[index]
+        risk = float(get_incident(incident_id)["risk_score"])
         scored = score_incident(frame, attack_probability=risk)
         return scored
 

@@ -3,6 +3,7 @@ knowledge-graph entities/edges, and investigations."""
 
 import uuid
 from datetime import UTC, datetime
+from typing import Any
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
@@ -29,7 +30,7 @@ EMBEDDING_DIM = get_settings().embedding_dim
 class TSVector(UserDefinedType):
     """PostgreSQL tsvector type for full-text search columns."""
 
-    def get_col_spec(self) -> str:
+    def get_col_spec(self, **kw: Any) -> str:
         return "tsvector"
 
 

@@ -1,6 +1,8 @@
 """Retrieval evaluation metrics: Recall@K, MRR, NDCG@K."""
 
 import math
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 
@@ -33,7 +35,7 @@ def ndcg_at_k(retrieved: list[str], relevant: set[str], k: int) -> float:
 
 def evaluate_retrieval(
     queries_relevant: dict[str, set[str]],
-    retrieval_fn,
+    retrieval_fn: Callable[[str], list[str]],
     ks: tuple[int, ...] = (5, 10),
 ) -> dict:
     """Run a retrieval function over a golden query set and aggregate metrics.
@@ -42,14 +44,14 @@ def evaluate_retrieval(
         queries_relevant: mapping query text -> set of relevant external_ids
         retrieval_fn: callable(query) -> ordered list of document ids
     """
-    recalls = {f"recall@{k}": [] for k in ks}
+    recalls: dict[str, list[float]] = {f"recall@{k}": [] for k in ks}
     mrrs: list[float] = []
-    ndcgs = {f"ndcg@{k}": [] for k in ks}
-    per_query: list[dict] = []
+    ndcgs: dict[str, list[float]] = {f"ndcg@{k}": [] for k in ks}
+    per_query: list[dict[str, Any]] = []
 
     for query, relevant in queries_relevant.items():
         retrieved = retrieval_fn(query)
-        row = {"query": query}
+        row: dict[str, Any] = {"query": query}
         for k in ks:
             r = recall_at_k(retrieved, relevant, k)
             recalls[f"recall@{k}"].append(r)
