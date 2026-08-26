@@ -53,7 +53,18 @@ def incident_graph(incident_id: str, max_hops: int = Query(2, ge=1, le=3)) -> di
             select(SecurityEventRow).where(SecurityEventRow.id.in_(event_ids))
         ).all()
 
+    # Seed order matters: external destination IOCs carry the highest signal
+    # and must survive the traversal seed cap, so they go first.
     seed_ids: list[str] = []
+    seen: set[str] = set()
+
+    def _add_seed(eid: str | None) -> None:
+        if eid and eid not in seen:
+            seen.add(eid)
+            seed_ids.append(eid)
+
+    for row in rows:
+        _add_seed(_entity_id("ioc", row.dst_ip))
     for row in rows:
         for kind, value in (
             ("user", row.user),
@@ -61,15 +72,7 @@ def incident_graph(incident_id: str, max_hops: int = Query(2, ge=1, le=3)) -> di
             ("ip", row.src_ip),
             ("process", row.process),
         ):
-            eid = _entity_id(kind, value)
-            if eid and eid not in seed_ids:
-                seed_ids.append(eid)
-
-    # External destination IPs become IOC seeds when present
-    for row in rows:
-        eid = _entity_id("ioc", row.dst_ip)
-        if eid:
-            seed_ids.append(eid)
+            _add_seed(_entity_id(kind, value))
 
     nbhd = related_entities_for_incident(seed_ids[:24], max_hops=max_hops)
     result = _neighborhood_to_dict(nbhd)
