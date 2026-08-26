@@ -9,6 +9,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from sentinel_x.common.netutil import is_internal_ip
+
 SENSITIVE_FILE_PATTERNS = ("payroll", "employee_records", "source_archive", ".locked")
 
 WINDOW_MINUTES = 5
@@ -44,7 +46,7 @@ def build_host_minute_features(events: pd.DataFrame) -> pd.DataFrame:
             df[col] = None
         df[col] = df[col].fillna("unknown").astype(str)
 
-    is_external_dst = ~df["dst_ip"].str.startswith(("10.", "192.168.", "172."))
+    is_external_dst = ~df["dst_ip"].map(is_internal_ip)
     df["_external_dst"] = np.where(df["event_type"] == "network_connection", is_external_dst, False)
 
     sensitive_hit = (

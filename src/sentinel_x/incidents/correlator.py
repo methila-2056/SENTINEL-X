@@ -9,6 +9,8 @@ from dataclasses import dataclass, field
 
 import pandas as pd
 
+from sentinel_x.common.netutil import is_internal_ip
+
 
 @dataclass
 class CandidateIncident:
@@ -97,7 +99,7 @@ def correlate_events(
             vals = set(sub[col].dropna().astype(str)) - {""}
             getattr(cand, target).update(vals)
         dst = sub["dst_ip"].dropna().astype(str)
-        ext = {d for d in dst if d and not d.startswith(("10.", "192.168.", "172."))}
+        ext = {d for d in dst if d and not is_internal_ip(d)}
         cand.dst_ips_external.update(ext)
         cand.first_seen = sub["timestamp"].min()
         cand.last_seen = sub["timestamp"].max()

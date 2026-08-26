@@ -8,11 +8,10 @@ from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
+from sentinel_x.common.netutil import is_internal_ip
 from sentinel_x.data.db.models import EdgeRow, EntityRow
 
 logger = structlog.get_logger(__name__)
-
-EXTERNAL_PREFIXES = ("10.", "192.168.", "172.")
 
 
 def _entity_id(entity_type: str, name: str) -> str:
@@ -88,11 +87,7 @@ def extract_entities_and_edges(events, session: Session) -> tuple[int, int]:
         hid = add_entity("host", host, ts)
         pid = add_entity("process", process, ts) if process else None
         sid = add_entity("ip", src_ip, ts) if src_ip else None
-        did = (
-            add_entity("ip", dst_ip, ts)
-            if dst_ip and not dst_ip.startswith(EXTERNAL_PREFIXES)
-            else None
-        )
+        did = add_entity("ip", dst_ip, ts) if dst_ip and not is_internal_ip(dst_ip) else None
         ioc_id = (
             add_entity("ioc", dst_ip, ts)
             if dst_ip and dst_ip.startswith(("185.", "45.155.", "91.219."))

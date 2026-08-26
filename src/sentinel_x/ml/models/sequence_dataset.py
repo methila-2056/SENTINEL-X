@@ -13,6 +13,8 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
+from sentinel_x.common.netutil import is_internal_ip
+
 SEQ_LEN = 32
 
 
@@ -49,9 +51,7 @@ def numeric_event_features(events: pd.DataFrame) -> np.ndarray:
     log_bytes = np.log1p(bytes_col.to_numpy(dtype=np.float64))
     severity = pd.to_numeric(df["severity"], errors="coerce").fillna(0.0).to_numpy(np.float64)
     dst_ip = df.get("dst_ip", pd.Series([None] * len(df))).fillna("").astype(str)
-    external = (~dst_ip.str.startswith(("10.", "192.168.", "172.")) & (dst_ip != "")).to_numpy(
-        np.float64
-    )
+    external = dst_ip.map(lambda ip: bool(ip) and not is_internal_ip(ip)).to_numpy(np.float64)
     port = pd.to_numeric(df.get("dst_port"), errors="coerce").fillna(0.0).to_numpy(np.float64)
     port_norm = np.clip(port / 65535.0, 0.0, 1.0)
     return np.column_stack([log_bytes, severity / 10.0, external, port_norm]).astype(np.float32)
