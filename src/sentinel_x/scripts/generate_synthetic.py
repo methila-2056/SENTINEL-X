@@ -1,17 +1,14 @@
-"""CLI entry point: generate the synthetic scenario dataset.
+"""Generate the synthetic scenario dataset.
 
 Usage:
-    python scripts/generate_synthetic.py [--days 7] [--attacks 12] [--seed 42]
+    sentinelx-generate-synth [--days 7] [--attacks 12] [--seed 42]
 """
 
 import argparse
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-
-from sentinel_x.common.logging import configure_logging  # noqa: E402
-from sentinel_x.data.ingestion.synthetic import generate_dataset, write_jsonl_sample  # noqa: E402
+from sentinel_x.common.logging import configure_logging
+from sentinel_x.data.ingestion.synthetic import generate_dataset, write_jsonl_sample
 
 
 def main() -> int:
@@ -29,7 +26,3 @@ def main() -> int:
     write_jsonl_sample(df, Path("data/samples/synthetic_events_sample.jsonl"))
     print(f"Events: {len(df)} | Incidents: {len(incidents)} | Output: {out_dir}")
     return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
