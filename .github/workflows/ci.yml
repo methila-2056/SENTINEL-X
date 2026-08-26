@@ -77,3 +77,38 @@ jobs:
         run: pip install -e ".[dev]"
       - name: Run tests
         run: pytest -m "not evaluation" --cov=sentinel_x --cov-report=term-missing
+
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: sentinel
+          POSTGRES_PASSWORD: sentinel_dev_password
+          POSTGRES_DB: sentinelx_integration
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sentinel"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    env:
+      DATABASE_URL: postgresql+asyncpg://sentinel:sentinel_dev_password@localhost:5432/sentinelx_integration
+      DATABASE_URL_SYNC: postgresql+psycopg://sentinel:sentinel_dev_password@localhost:5432/sentinelx_integration
+      REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+      - name: Run integration tests
+        run: pytest -m integration -v --tb=short
