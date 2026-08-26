@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 
-export function Layout({ children }: { children: ReactNode }) {
+export function Layout({ children, onLogout }: { children: ReactNode; onLogout: () => void }) {
   return (
     <>
       <nav className="sidebar">
@@ -18,6 +18,9 @@ export function Layout({ children }: { children: ReactNode }) {
         >
           Threat Intelligence
         </NavLink>
+        <button className="logout-button" type="button" onClick={onLogout}>
+          Sign out
+        </button>
       </nav>
       <main className="main">{children}</main>
     </>

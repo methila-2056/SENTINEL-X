@@ -178,4 +178,20 @@ class InvestigationRow(Base):
     evidence: Mapped[list] = mapped_column(JSONB, default=list)
     tool_calls: Mapped[list] = mapped_column(JSONB, default=list)
     model_name: Mapped[str | None] = mapped_column(String(100))
+
+
+class UserRow(Base):
+    """API user account for JWT authentication and role-based access.
+
+    Roles: admin (user management + investigations), analyst (investigations),
+    viewer (read-only).
+    """
+
+    __tablename__ = "users"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    username: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    password_hash: Mapped[str] = mapped_column(Text)
+    role: Mapped[str] = mapped_column(String(16), default="viewer")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     duration_ms: Mapped[int | None] = mapped_column(Integer)

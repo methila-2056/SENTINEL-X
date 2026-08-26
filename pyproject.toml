@@ -21,6 +21,7 @@ dependencies = [
     "uvicorn[standard]>=0.30",
     "pydantic>=2.9",
     "pydantic-settings>=2.5",
+    "pyjwt>=2.9",
 
     # Database (PostgreSQL + pgvector)
     "sqlalchemy[asyncio]>=2.0.35",
@@ -90,6 +91,11 @@ select = [
 ignore = [
     "E501", # long lines handled by formatter where possible
 ]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection pattern calls Depends() in parameter
+# defaults by design.
+extend-immutable-calls = ["fastapi.Depends"]
 
 [tool.ruff.format]
 quote-style = "double"
