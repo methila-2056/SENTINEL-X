@@ -84,18 +84,29 @@ def load_raw_files(raw_dir: Path) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True)
 
 
+def build_label_map(labels: pd.Index | set[str]) -> dict[str, tuple[str, str | None]]:
+    """Resolve raw CIC-IDS2017 labels to (label, attack_category) pairs.
+
+    Returns a new mapping; unknown labels are conservatively treated as attacks.
+    The module-level LABEL_MAP is never mutated.
+    """
+    resolved = dict(LABEL_MAP)
+    unknown = set(labels) - set(resolved)
+    if unknown:
+        logger.warning("unknown_labels_mapped_to_attack", labels=sorted(unknown))
+        for lbl in unknown:
+            resolved[lbl] = ("attack", "other")
+    return resolved
+
+
 def normalize(raw_dir: Path, out_dir: Path) -> tuple[Path, Path]:
     """Normalize raw CSVs into canonical events + ML feature table."""
     out_dir.mkdir(parents=True, exist_ok=True)
     df = load_raw_files(raw_dir)
 
     # --- Label normalization -------------------------------------------------
-    unknown_labels = set(df["Label"].unique()) - set(LABEL_MAP)
-    if unknown_labels:
-        logger.warning("unknown_labels_mapped_to_attack", labels=sorted(unknown_labels))
-        for lbl in unknown_labels:
-            LABEL_MAP[lbl] = ("attack", "other")
-    label_norm = df["Label"].map(lambda x: LABEL_MAP.get(x, ("benign", None)))
+    label_map = build_label_map(df["Label"].unique())
+    label_norm = df["Label"].map(lambda x: label_map.get(x, ("benign", None)))
     df["label"] = [pair[0] for pair in label_norm]
     df["attack_category"] = [pair[1] for pair in label_norm]
 
