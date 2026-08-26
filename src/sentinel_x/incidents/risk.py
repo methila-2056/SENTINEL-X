@@ -3,6 +3,8 @@
 import numpy as np
 import pandas as pd
 
+from sentinel_x.common.netutil import is_internal_ip
+
 SEVERITY_THRESHOLDS = {
     "critical": 0.85,
     "high": 0.60,
@@ -34,11 +36,7 @@ def score_incident(
         .any()
     )
     dst_ips = events["dst_ip"].dropna().astype(str)
-    external = (
-        float((~dst_ips.str.startswith(("10.", "192.168.", "172."))).mean())
-        if len(dst_ips)
-        else 0.0
-    )
+    external = float((~dst_ips.map(is_internal_ip)).mean()) if len(dst_ips) else 0.0
     bytes_out = pd.to_numeric(events.get("bytes_transferred"), errors="coerce").fillna(0).sum()
     volume_signal = float(np.tanh(np.log1p(bytes_out) / 25.0))  # ~1 around >10^9 bytes
     proc = events["process"].dropna().astype(str).str.lower()

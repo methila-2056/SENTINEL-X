@@ -94,7 +94,9 @@ class InvestigatorAgent:
             if decision.get("done") or not tool_name or tool_name not in self.tools:
                 break
             args = decision.get("args") or {}
+            step_start = time.perf_counter()
             result = self._execute(tool_name, args)
+            duration_ms = int((time.perf_counter() - step_start) * 1000)
             steps.append(
                 InvestigationStep(
                     step_index=step_index,
@@ -102,7 +104,7 @@ class InvestigatorAgent:
                     tool=tool_name,
                     args=args,
                     ok=result.ok,
-                    duration_ms=0,
+                    duration_ms=duration_ms,
                 )
             )
             transcript.append(
