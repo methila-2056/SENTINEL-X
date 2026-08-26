@@ -12,7 +12,7 @@ from sqlalchemy import func, select
 from sentinel_x.api.audit import AuditLogMiddleware
 from sentinel_x.api.deps import get_current_user
 from sentinel_x.api.ratelimit import RateLimitMiddleware
-from sentinel_x.api.routers import agent, events, graph, incidents, search
+from sentinel_x.api.routers import agent, events, graph, incidents, ml, search
 from sentinel_x.api.routers.health import router as health_router
 
 logger = structlog.get_logger(__name__)
@@ -86,6 +86,12 @@ def create_app() -> FastAPI:
         graph.router,
         prefix="/api",
         tags=["graph"],
+        dependencies=[Depends(get_current_user)],
+    )
+    app.include_router(
+        ml.router,
+        prefix="/api/ml",
+        tags=["ml"],
         dependencies=[Depends(get_current_user)],
     )
 
