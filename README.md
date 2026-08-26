@@ -35,7 +35,7 @@ flowchart TD
 | ML | scikit-learn, XGBoost, PyTorch (Transformer encoder), Isolation Forest |
 | Retrieval | PostgreSQL FTS (BM25-style) + pgvector HNSW + RRF fusion + cross-encoder reranking |
 | LLM | Ollama + Qwen2.5 3B (local) |
-| Backend | FastAPI, SQLAlchemy 2 (async), JWT auth, RBAC |
+| Backend | FastAPI, SQLAlchemy 2, pydantic validation |
 | Database | PostgreSQL 16 + pgvector |
 | MLOps | MLflow, GitHub Actions CI, Docker Compose |
 | Observability | structlog structured logging |
