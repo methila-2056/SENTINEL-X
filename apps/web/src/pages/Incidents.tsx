@@ -27,7 +27,7 @@ export function Incidents() {
 
   return (
     <>
-      <h1>Open Incidents</h1>
+      <h1>Incidents</h1>
       <div className="card">
         {loading && <Spinner label="Loading incidents…" />}
         {error && (
@@ -49,10 +49,11 @@ export function Incidents() {
             <thead>
               <tr>
                 <th>Incident</th>
+                <th>Status</th>
                 <th>Severity</th>
-                <th>Risk score</th>
-                <th style={{ width: '18%' }}></th>
-                <th>ML attack prob.</th>
+                <th>Risk</th>
+                <th style={{ width: '15%' }}></th>
+                <th>ML prob.</th>
                 <th>Anomaly</th>
                 <th>Events</th>
                 <th>First seen</th>
@@ -67,6 +68,7 @@ export function Incidents() {
                   onClick={() => navigate(`/incidents/${row.id}`)}
                 >
                   <td className="mono">{row.id}</td>
+                  <td><StatusBadge status={row.status} /></td>
                   <td>
                     <RiskBadge label={row.severity_label} />
                   </td>
@@ -77,8 +79,8 @@ export function Incidents() {
                   <td>{row.attack_probability != null ? row.attack_probability.toFixed(2) : '—'}</td>
                   <td>{row.anomaly_score != null ? row.anomaly_score.toFixed(2) : '—'}</td>
                   <td>{row.n_events}</td>
-                  <td className="muted">{fmtTime(row.first_seen)}</td>
-                  <td className="muted">{fmtTime(row.last_seen)}</td>
+                  <td className="muted" title={fmtFull(row.first_seen)}>{fmtRelative(row.first_seen)}</td>
+                  <td className="muted" title={fmtFull(row.last_seen)}>{fmtRelative(row.last_seen)}</td>
                 </tr>
               ))}
             </tbody>
@@ -89,7 +91,31 @@ export function Incidents() {
   )
 }
 
-function fmtTime(iso: string | null): string {
+const STATUS_STYLES: Record<string, string> = {
+  open: 'badge critical',
+  investigating: 'badge high',
+  closed: 'badge low',
+}
+
+function StatusBadge({ status }: { status: string | null }) {
+  if (!status) return <span className="muted">—</span>
+  return <span className={STATUS_STYLES[status] ?? 'badge info'}>{status}</span>
+}
+
+function fmtRelative(iso: string | null): string {
+  if (!iso) return '—'
+  const diff = Date.now() - new Date(iso).getTime()
+  const sec = Math.round(diff / 1000)
+  if (sec < 60) return `${sec}s ago`
+  const min = Math.round(sec / 60)
+  if (min < 60) return `${min}m ago`
+  const hr = Math.round(min / 60)
+  if (hr < 24) return `${hr}h ago`
+  const d = Math.round(hr / 24)
+  return `${d}d ago`
+}
+
+function fmtFull(iso: string | null): string {
   if (!iso) return '—'
   return new Date(iso).toLocaleString()
 }
