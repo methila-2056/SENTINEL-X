@@ -187,12 +187,12 @@ def seed_database(
 
         session.bulk_insert_mappings(IncidentRow, incident_records)
 
-        # Stamp events with their incident id
-        for eid, inc_id in event_incident_map.items():
+        # Stamp events with their incident id in a single batched executemany
+        # instead of one round-trip per event.
+        if event_incident_map:
             session.execute(
-                update(SecurityEventRow)
-                .where(SecurityEventRow.id == eid)
-                .values(incident_id=inc_id)
+                update(SecurityEventRow),
+                [{"id": eid, "incident_id": inc_id} for eid, inc_id in event_incident_map.items()],
             )
         session.commit()
 
