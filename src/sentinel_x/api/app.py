@@ -12,6 +12,7 @@ from sqlalchemy import func, select
 from sentinel_x.api.deps import get_current_user
 from sentinel_x.api.ratelimit import RateLimitMiddleware
 from sentinel_x.api.routers import agent, events, graph, incidents, search
+from sentinel_x.api.routers.health import router as health_router
 
 logger = structlog.get_logger(__name__)
 
@@ -95,6 +96,9 @@ def create_app() -> FastAPI:
     @app.get("/api/health")
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    # Deep health probes (no auth required; exempt from rate limiting)
+    app.include_router(health_router, prefix="/api", tags=["health"])
 
     return app
 
