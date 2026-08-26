@@ -12,40 +12,19 @@ SENTINEL-X detects abnormal enterprise activity with ML, correlates related secu
 
 ## Architecture
 
-```text
-Security Telemetry          Threat Intelligence
-      |                            |
-      v                            v
-Data Pipeline               Document Pipeline
-      |                            |
-      v                            v
-Feature Engineering          Embeddings
-      |                            |
-      v                            v
-ML Detection                PostgreSQL + pgvector
-      |                            |
-      +----------------------------+
-                   |
-           Incident Engine
-                   |
-          +---------------+
-          |               |
-    Knowledge        Hybrid RAG
-      Graph              |
-          |              v
-          +------->  Reranker
-                         |
-                         v
-                 Investigation Agent
-                         |
-                   Tool Calling + Verification
-                         |
-                         v
-                 Evidence-Grounded Report
-                         |
-             +-------------------------+
-             |                         |
-          FastAPI                  React UI
+```mermaid
+flowchart TD
+    T["Security Telemetry"] --> DP["Data Pipeline"] --> FE["Feature Engineering"] --> ML["ML Detection"]
+    TI["Threat Intelligence"] --> DOC["Document Pipeline"] --> EMB["Embeddings"] --> PG[("PostgreSQL + pgvector")]
+    ML --> IE["Incident Engine"]
+    PG --> KG["Knowledge Graph"]
+    PG --> RAG["Hybrid RAG"] --> RR["Reranker"]
+    KG --> IA["Investigation Agent"]
+    RR --> IA
+    IA --> TV["Tool Calling + Verification"]
+    TV --> REP["Evidence-Grounded Report"]
+    REP --> API["FastAPI"]
+    REP --> UI["React UI"]
 ```
 
 ## Technology stack
@@ -92,7 +71,12 @@ python scripts/seed_pipeline.py --reset
 
 ## Evaluation & experiments
 
-Every claim in this project is backed by a runnable experiment under `experiments/`:
+Every claim in this project is backed by a runnable experiment under `experiments/`.
+**Measured results** (full methodology + limitations in [`docs/experiments/results-2026-08.md`](docs/experiments/results-2026-08.md)):
+
+- **Retrieval:** hybrid+reranker achieves best MRR **0.627** / NDCG@10 **0.879** vs 0.213 / 0.245 for BM25-only
+- **RAG ablation (n=25, local 3B model):** hybrid+reranker raises faithfulness to **0.500** (+13.6% rel.) and answer relevance to **0.405** (+17% rel.) vs vector-only RAG; BM25-only RAG collapses to 0.20 faithfulness
+- **Knowledge graph:** attack hosts reach IOC nodes within 2 hops at **33.3%** vs **0.0%** for benign controls — perfect separation at hop radius ≥ 2
 
 | Experiment | Measures |
 |---|---|
