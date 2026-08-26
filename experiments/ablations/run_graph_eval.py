@@ -26,8 +26,9 @@ BENIGN_SAMPLE = 30
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--hops", type=int, default=4)
-    parser.add_argument("--ground-truth",
-                        default=str(ROOT / "data/processed/synthetic/incidents_ground_truth.json"))
+    parser.add_argument(
+        "--ground-truth", default=str(ROOT / "data/processed/synthetic/incidents_ground_truth.json")
+    )
     args = parser.parse_args()
     configure_logging()
 
