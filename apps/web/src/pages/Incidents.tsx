@@ -1,37 +1,50 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import type { IncidentSummary } from '../types'
 import { Meter, RiskBadge, severityColor } from '../components/RiskBadge'
+import { Spinner } from '../components/Spinner'
 
 export function Incidents() {
   const [incidents, setIncidents] = useState<IncidentSummary[]>([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setLoading(true)
+    setError(null)
     api
       .listIncidents()
       .then((rows) =>
-        setIncidents(
-          rows.sort((a, b) => (b.risk_score ?? 0) - (a.risk_score ?? 0)),
-        ),
+        setIncidents(rows.sort((a, b) => (b.risk_score ?? 0) - (a.risk_score ?? 0))),
       )
       .catch((e) => setError(String(e)))
+      .finally(() => setLoading(false))
   }, [])
 
-  if (error) return <div className="error-banner">API error: {error}</div>
+  useEffect(() => { load() }, [load])
 
   return (
     <>
       <h1>Open Incidents</h1>
       <div className="card">
-        {incidents.length === 0 ? (
-          <div className="muted">
-            No incidents found. Seed the database first:{' '}
-            <code className="mono">python scripts/seed_pipeline.py</code>
+        {loading && <Spinner label="Loading incidents…" />}
+        {error && (
+          <div className="error-banner">
+            API error: {error}{' '}
+            <button className="btn-retry" onClick={load} style={{ marginLeft: 8 }}>
+              Retry
+            </button>
           </div>
-        ) : (
+        )}
+        {!loading && !error && incidents.length === 0 && (
+          <div className="muted">
+            No incidents found. Seed the database with:{' '}
+            <code className="mono">sentinelx seed</code>
+          </div>
+        )}
+        {!loading && !error && incidents.length > 0 && (
           <table className="data">
             <thead>
               <tr>

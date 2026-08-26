@@ -10,6 +10,7 @@ import type {
 } from '../types'
 import { GraphView } from '../components/GraphView'
 import { Meter, RiskBadge, severityColor } from '../components/RiskBadge'
+import { Spinner } from '../components/Spinner'
 
 const POLL_INTERVAL_MS = 2000
 
@@ -18,17 +19,31 @@ export function IncidentDetail() {
   const [incident, setIncident] = useState<IncidentDetailType | null>(null)
   const [events, setEvents] = useState<SecurityEvent[]>([])
   const [graph, setGraph] = useState<GraphData | null>(null)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const [job, setJob] = useState<JobStatus | null>(null)
   const [running, setRunning] = useState(false)
 
-  useEffect(() => {
+  const load = useCallback(() => {
     if (!id) return
-    api.getIncident(id).then(setIncident).catch((e) => setError(String(e)))
-    api.getIncidentEvents(id).then(setEvents).catch(() => setEvents([]))
-    api.getIncidentGraph(id).then(setGraph).catch(() => setGraph(null))
+    setLoading(true)
+    setError(null)
+    Promise.all([
+      api.getIncident(id),
+      api.getIncidentEvents(id).catch(() => [] as SecurityEvent[]),
+      api.getIncidentGraph(id).catch(() => null),
+    ])
+      .then(([inc, evs, gr]) => {
+        setIncident(inc)
+        setEvents(evs)
+        setGraph(gr)
+      })
+      .catch((e) => setError(String(e)))
+      .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => { load() }, [load])
 
   useEffect(() => {
     if (!job || job.state !== 'running') return
@@ -55,8 +70,17 @@ export function IncidentDetail() {
     }
   }, [id])
 
-  if (error) return <div className="error-banner">API error: {error}</div>
-  if (!incident) return <div className="muted">Loading…</div>
+  if (loading) return <Spinner label="Loading incident…" />
+  if (error)
+    return (
+      <div className="error-banner">
+        API error: {error}{' '}
+        <button className="btn-retry" onClick={load} style={{ marginLeft: 8 }}>
+          Retry
+        </button>
+      </div>
+    )
+  if (!incident) return <div className="muted">Incident not found.</div>
 
   const report = job?.report && !('error' in job.report) ? job.report : null
 

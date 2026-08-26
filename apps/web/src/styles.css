@@ -117,3 +117,20 @@ button.btn:disabled { opacity: .55; cursor: default; }
 .logout-button:hover {
   opacity: 1;
 }
+
+/* Loading spinner */
+.spinner-wrap { display: flex; align-items: center; gap: 10px; padding: 24px 0; }
+.spinner {
+  width: 20px; height: 20px; border: 2.5px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner-label { color: var(--muted); font-size: 13px; }
+
+/* Retry button (small, inline) */
+.btn-retry {
+  background: transparent; border: 1px solid var(--border); color: var(--muted);
+  border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 12px;
+}
+.btn-retry:hover { border-color: var(--accent); color: var(--accent); }
