@@ -24,27 +24,6 @@ from sentinel_x.ml.inference.scoring import score_host_minutes
 
 logger = get_logger(__name__)
 
-EVENT_COLUMNS = [
-    "event_id",
-    "timestamp",
-    "source",
-    "event_type",
-    "action",
-    "user",
-    "host",
-    "process",
-    "src_ip",
-    "dst_ip",
-    "dst_port",
-    "file_path",
-    "bytes_transferred",
-    "severity",
-    "label",
-    "attack_category",
-    "technique_id",
-    "metadata",
-]
-
 
 def _sanitize(df: pd.DataFrame) -> pd.DataFrame:
     """Normalize timestamps and numerics; NaN -> None so DB columns accept values."""

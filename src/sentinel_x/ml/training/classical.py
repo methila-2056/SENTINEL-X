@@ -1,7 +1,6 @@
 """Classical ML detection models: Logistic Regression, Random Forest, XGBoost,
 Isolation Forest. Trained with temporal splits and tracked in MLflow."""
 
-from dataclasses import dataclass
 from pathlib import Path
 
 import joblib
@@ -20,13 +19,6 @@ from sentinel_x.evaluation.ml.metrics import (
 )
 
 logger = structlog.get_logger(__name__)
-
-
-@dataclass
-class TrainResult:
-    model_name: str
-    metrics: dict
-    model_path: Path | None
 
 
 def _make_logistic_regression(y_train: np.ndarray) -> Pipeline:

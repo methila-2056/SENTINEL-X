@@ -14,7 +14,6 @@ from sklearn.metrics import (
     f1_score,
     precision_recall_curve,
     precision_score,
-    r2_score,
     recall_score,
     roc_auc_score,
     roc_curve,
@@ -106,7 +105,3 @@ def save_metrics_report(all_metrics: dict[str, dict], out_dir: Path) -> Path:
     md_path = out_dir / "metrics_summary.md"
     md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return json_path
-
-
-def regression_r2(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    return float(r2_score(y_true, y_pred))
