@@ -1,6 +1,10 @@
 # SENTINEL-X
 
-![CI](https://github.com/methila-2056/SENTINEL-X/actions/workflows/ci.yml/badge.svg) ![CodeQL](https://github.com/methila-2056/SENTINEL-X/actions/workflows/codeql.yml/badge.svg)
+![CI](https://github.com/methila-2056/SENTINEL-X/actions/workflows/ci.yml/badge.svg)
+![CodeQL](https://github.com/methila-2056/SENTINEL-X/actions/workflows/codeql.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.12%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-261230)
 
 **AI-Powered Security Incident Intelligence & Autonomous Investigation Platform**
 
@@ -10,38 +14,38 @@ SENTINEL-X detects abnormal enterprise activity with ML, correlates related secu
 
 ```text
 Security Telemetry          Threat Intelligence
-      ¦                            ¦
-      ?                            ?
+      |                            |
+      v                            v
 Data Pipeline               Document Pipeline
-      ¦                            ¦
-      ?                            ?
+      |                            |
+      v                            v
 Feature Engineering          Embeddings
-      ¦                            ¦
-      ?                            ?
+      |                            |
+      v                            v
 ML Detection                PostgreSQL + pgvector
-      ¦                            ¦
+      |                            |
       +----------------------------+
-                 ?
-          Incident Engine
-                 ¦
-         +---------------+
-         ?               ?
+                   |
+           Incident Engine
+                   |
+          +---------------+
+          |               |
     Knowledge        Hybrid RAG
-      Graph              ¦
-         ¦               ?
-         +--------?  Reranker
-                         ¦
-                         ?
+      Graph              |
+          |              v
+          +------->  Reranker
+                         |
+                         v
                  Investigation Agent
-                         ¦
-                   Tool Calling ? Verification
-                         ¦
-                         ?
-                Evidence-Grounded Report
-                         ¦
-            +-------------------------+
-            ?                         ?
-         FastAPI                  React UI
+                         |
+                   Tool Calling + Verification
+                         |
+                         v
+                 Evidence-Grounded Report
+                         |
+             +-------------------------+
+             |                         |
+          FastAPI                  React UI
 ```
 
 ## Technology stack
@@ -59,6 +63,17 @@ ML Detection                PostgreSQL + pgvector
 
 ## Quickstart
 
+### Full stack (Docker)
+
+```powershell
+docker compose up -d          # postgres+pgvector, redis, mlflow, api, web
+# API      -> http://localhost:8000/docs
+# UI       -> http://localhost:5173
+# MLflow   -> http://localhost:5000
+```
+
+### Local development
+
 ```powershell
 # 1. Create environment and install
 python -m venv .venv
@@ -66,11 +81,25 @@ python -m venv .venv
 pip install -e ".[dev]"
 
 # 2. Start infrastructure (PostgreSQL+pgvector, Redis)
-docker compose up -d
+docker compose up -d postgres redis
 
 # 3. Configure environment
 Copy-Item .env.example .env
+
+# 4. Seed the pipeline: events -> ML-scored incidents -> knowledge graph
+python scripts/seed_pipeline.py --reset
 ```
+
+## Evaluation & experiments
+
+Every claim in this project is backed by a runnable experiment under `experiments/`:
+
+| Experiment | Measures |
+|---|---|
+| `experiments/retrieval/` | Recall@K / MRR / NDCG for BM25 vs vector vs hybrid vs hybrid+reranker |
+| `experiments/ablations/run_rag_ablation.py` | Context precision/recall + faithfulness across retrieval configurations |
+| `experiments/ablations/run_graph_eval.py` | Multi-hop host-to-IOC path hit-rate, attack vs benign hosts |
+| `src/sentinel_x/evaluation/agents/harness.py` | Investigation agent task success, tool-call accuracy, latency |
 
 ## Repository layout
 
