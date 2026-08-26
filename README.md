@@ -46,7 +46,7 @@ flowchart TD
 
 ```powershell
 docker compose up -d          # postgres+pgvector, redis, mlflow, api, web
-# API      -> http://localhost:8000/docs
+# API      -> http://localhost:8001/docs   (host port 8001; 8000 stays free for other services)
 # UI       -> http://localhost:5173
 # MLflow   -> http://localhost:5000
 ```

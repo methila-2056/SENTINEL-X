@@ -34,7 +34,14 @@ def neighborhood(
                 JOIN entities n ON n.id = CASE WHEN ed.src_id = w.id THEN ed.dst_id ELSE ed.src_id END
                 WHERE w.depth < :hops
             )
-            SELECT DISTINCT id, entity_type, name, is_malicious FROM walk LIMIT :limit
+            SELECT id, entity_type, name, is_malicious
+            FROM (
+                SELECT id, entity_type, name, is_malicious, min(depth) AS d
+                FROM walk
+                GROUP BY id, entity_type, name, is_malicious
+            ) t
+            ORDER BY d
+            LIMIT :limit
             """
         )
         node_rows = session.execute(
@@ -66,7 +73,7 @@ def paths_to_iocs(entity_id: str, max_hops: int = 4, limit: int = 20) -> list[di
         sql = text(
             """
             WITH RECURSIVE walk AS (
-                SELECT id, ARRAY[id] AS path, 0 AS depth
+                SELECT id, ARRAY[id]::varchar[] AS path, 0 AS depth
                 FROM entities WHERE id = :start
                 UNION
                 SELECT n.id, w.path || n.id, w.depth + 1

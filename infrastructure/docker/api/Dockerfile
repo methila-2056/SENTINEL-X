@@ -13,12 +13,10 @@ RUN apt-get update \
 
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
-RUN pip install -e .
 
-# Pre-download embedding + reranker models into the image layer cache
-RUN python -c "from sentence_transformers import SentenceTransformer; \
-    SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2'); \
-    SentenceTransformer('cross-encoder/ms-marco-MiniLM-L-6-v2')" || echo "model warmup skipped"
+# CPU-only torch first so `pip install -e .` does not pull CUDA wheels (~3GB)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
+    && pip install -e .
 
 EXPOSE 8000
 
