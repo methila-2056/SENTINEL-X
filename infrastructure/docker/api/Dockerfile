@@ -18,6 +18,11 @@ COPY src ./src
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
     && pip install -e .
 
+RUN adduser --disabled-password --gecos "" appuser \
+    && chown -R appuser:appuser /app
+
+USER appuser
+
 EXPOSE 8000
 
 HEALTHCHECK --interval=15s --timeout=5s --retries=5 \
