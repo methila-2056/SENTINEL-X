@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, Query
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from sentinel_x.common.db import get_sync_session
 from sentinel_x.data.db.models import SecurityEventRow
@@ -20,16 +20,17 @@ def query_events(
     event_type: str | None = None,
     limit: int = Query(50, ge=1, le=500),
 ) -> list[dict[str, Any]]:
-    stmt = select(SecurityEventRow).order_by(SecurityEventRow.timestamp.desc()).limit(limit * 4)
+    # Filters must run in SQL: fetching a newest-N window and filtering in
+    # Python silently dropped matching rows older than the window.
+    stmt = select(SecurityEventRow).order_by(SecurityEventRow.timestamp.desc()).limit(limit)
+    if host:
+        stmt = stmt.where(func.lower(SecurityEventRow.host) == host.lower())
+    if user:
+        stmt = stmt.where(func.lower(SecurityEventRow.user) == user.lower())
+    if event_type:
+        stmt = stmt.where(SecurityEventRow.event_type == event_type)
     with get_sync_session() as session:
         rows = session.scalars(stmt).all()
-        filtered = [
-            r
-            for r in rows
-            if (host is None or (r.host or "").lower() == host.lower())
-            and (user is None or (r.user or "").lower() == user.lower())
-            and (event_type is None or r.event_type == event_type)
-        ]
         return [
             {
                 "event_id": r.id,
@@ -50,5 +51,5 @@ def query_events(
                 "technique_id": r.technique_id,
                 "incident_id": r.incident_id,
             }
-            for r in filtered[:limit]
+            for r in rows
         ]
