@@ -65,5 +65,7 @@ export const api = {
   startInvestigation: (incidentId: string) =>
     post<JobStatus>('/api/investigations', { incident_id: incidentId }),
 
+  listInvestigations: () => get<JobStatus[]>('/api/investigations'),
+
   getJob: (jobId: string) => get<JobStatus>(`/api/investigations/${jobId}`),
 }

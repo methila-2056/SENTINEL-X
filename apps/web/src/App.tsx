@@ -5,6 +5,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { Layout } from './components/Layout'
 import { IncidentDetail } from './pages/IncidentDetail'
 import { Incidents } from './pages/Incidents'
+import { Investigations } from './pages/Investigations'
 import { KnowledgeSearch } from './pages/KnowledgeSearch'
 import { Login } from './pages/Login'
 
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="/" element={<Navigate to="/incidents" replace />} />
             <Route path="/incidents" element={<Incidents />} />
             <Route path="/incidents/:id" element={<IncidentDetail />} />
+            <Route path="/investigations" element={<Investigations />} />
             <Route path="/knowledge" element={<KnowledgeSearch />} />
           </Routes>
         </ErrorBoundary>

@@ -13,6 +13,12 @@ export function Layout({ children, onLogout }: { children: ReactNode; onLogout: 
           Incidents
         </NavLink>
         <NavLink
+          to="/investigations"
+          className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+        >
+          Investigations
+        </NavLink>
+        <NavLink
           to="/knowledge"
           className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
         >
