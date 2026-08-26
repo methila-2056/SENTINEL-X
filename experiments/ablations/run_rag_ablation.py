@@ -79,8 +79,13 @@ def main() -> int:
     configs = ["vector", "bm25", "hybrid", "full"]
     queries = dict(list(GOLDEN_QUERIES.items())[: args.queries])
     per_config: dict[str, dict] = {
-        c: {"context_precision": [], "context_recall": [], "faithfulness": [],
-            "answer_relevance": [], "n_answers": 0}
+        c: {
+            "context_precision": [],
+            "context_recall": [],
+            "faithfulness": [],
+            "answer_relevance": [],
+            "n_answers": 0,
+        }
         for c in configs
     }
 
@@ -120,12 +125,14 @@ def main() -> int:
         summary[config] = {
             "context_precision@k": round(sum(vals["context_precision"]) / n, 4),
             "context_recall": round(sum(vals["context_recall"]) / n, 4),
-            "faithfulness": round(
-                sum(vals["faithfulness"]) / max(vals["n_answers"], 1), 4
-            ) if vals["n_answers"] else None,
+            "faithfulness": round(sum(vals["faithfulness"]) / max(vals["n_answers"], 1), 4)
+            if vals["n_answers"]
+            else None,
             "answer_relevance": round(
                 sum(vals["answer_relevance"]) / max(len(vals["answer_relevance"]), 1), 4
-            ) if vals["answer_relevance"] else None,
+            )
+            if vals["answer_relevance"]
+            else None,
             "n_queries": n,
             "n_generated_answers": vals["n_answers"],
             "generation_used": use_llm,
