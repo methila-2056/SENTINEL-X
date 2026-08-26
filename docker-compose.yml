@@ -31,6 +31,50 @@ services:
       timeout: 3s
       retries: 10
 
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.17.0
+    container_name: sentinelx-mlflow
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow_data:/mlflow
+
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/api/Dockerfile
+    container_name: sentinelx-api
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-sentinel}:${POSTGRES_PASSWORD:-sentinel_dev_password}@postgres:5432/${POSTGRES_DB:-sentinelx}
+      DATABASE_URL_SYNC: postgresql+psycopg://${POSTGRES_USER:-sentinel}:${POSTGRES_PASSWORD:-sentinel_dev_password}@postgres:5432/${POSTGRES_DB:-sentinelx}
+      REDIS_URL: redis://redis:6379/0
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: ../../infrastructure/docker/web/Dockerfile
+      additional_contexts:
+        infra: ./infrastructure
+    container_name: sentinelx-web
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+
 volumes:
   postgres_data:
   redis_data:
+  mlflow_data:
