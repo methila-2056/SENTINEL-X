@@ -1,3 +1,4 @@
+import { clearToken, getToken } from './auth'
 import type {
   GraphData,
   IncidentDetail,
@@ -9,20 +10,33 @@ import type {
 
 const BASE = import.meta.env.VITE_API_BASE ?? ''
 
-async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`)
-  if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`)
+function authHeaders(): Record<string, string> {
+  const token = getToken()
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
+async function handle<T>(path: string, method: string, res: Response): Promise<T> {
+  if (res.status === 401) {
+    // Expired/invalid token: evict and let the login screen take over.
+    clearToken()
+    throw new Error('Session expired')
+  }
+  if (!res.ok) throw new Error(`${method} ${path} failed: ${res.status}`)
   return res.json() as Promise<T>
+}
+
+async function get<T>(path: string): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, { headers: authHeaders() })
+  return handle(path, 'GET', res)
 }
 
 async function post<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify(body),
   })
-  if (!res.ok) throw new Error(`POST ${path} failed: ${res.status}`)
-  return res.json() as Promise<T>
+  return handle(path, 'POST', res)
 }
 
 export const api = {
