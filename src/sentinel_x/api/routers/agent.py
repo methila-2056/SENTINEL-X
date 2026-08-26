@@ -4,18 +4,22 @@ from __future__ import annotations
 
 import time
 import uuid
+from contextlib import suppress
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from sentinel_x.api.deps import ROLE_ADMIN, ROLE_ANALYST, require_roles
+from sentinel_x.api.jobstore import JobNotFoundError, choose_job_store
 from sentinel_x.common.logging import get_logger
 
 logger = get_logger(__name__)
 router = APIRouter()
 
-_JOBS: dict[str, dict[str, Any]] = {}
+# Chosen once at import: Redis-backed when reachable, bounded in-memory
+# otherwise. Survives multi-worker deployments in the Redis case.
+_JOBS = choose_job_store()
 
 
 class InvestigationStart(BaseModel):
@@ -38,22 +42,16 @@ def start_investigation(
     from sentinel_x.agents.workflows.investigator import InvestigatorAgent
 
     job_id = f"job-{uuid.uuid4().hex[:8]}"
-    _JOBS[job_id] = {
-        "incident_id": payload.incident_id,
-        "state": "running",
-        "started": time.time(),
-        "report": None,
-    }
+    _JOBS.create(job_id, payload.incident_id)
 
     def _run() -> None:
         try:
             report = InvestigatorAgent(max_steps=6).investigate(payload.incident_id)
-            _JOBS[job_id]["report"] = report.to_dict()
-            _JOBS[job_id]["state"] = "completed"
+            _JOBS.update(job_id, state="completed", report=report.to_dict())
         except Exception as exc:  # noqa: BLE001 - job boundary
             logger.error("investigation_job_failed", error=str(exc))
-            _JOBS[job_id]["state"] = "failed"
-            _JOBS[job_id]["report"] = {"error": str(exc)}
+            with suppress(JobNotFoundError):
+                _JOBS.update(job_id, state="failed", report={"error": str(exc)})
 
     import threading
 
