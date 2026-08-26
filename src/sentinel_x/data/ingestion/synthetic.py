@@ -10,6 +10,7 @@ import json
 import zlib
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -84,8 +85,8 @@ class ScenarioContext:
         )
 
 
-def _ev(**kwargs) -> dict:
-    base = {
+def _ev(**kwargs) -> dict[str, Any]:
+    base: dict[str, Any] = {
         "user": None,
         "host": None,
         "process": None,
@@ -601,8 +602,8 @@ def generate_benign_events(
     return events
 
 
-def build_world(seed: int) -> tuple[list[dict], list[str]]:
-    users = []
+def build_world(seed: int) -> tuple[list[dict[str, Any]], list[str]]:
+    users: list[dict[str, Any]] = []
     for i, name in enumerate(FIRST_NAMES):
         dept = DEPARTMENTS[i % len(DEPARTMENTS)]
         role = "it_admin" if dept == "it_admin" else "employee"

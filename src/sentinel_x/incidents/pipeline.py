@@ -12,7 +12,7 @@ import math
 from pathlib import Path
 
 import pandas as pd
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, update
 
 from sentinel_x.common.db import get_sync_session
 from sentinel_x.common.logging import get_logger
@@ -113,7 +113,7 @@ def seed_database(
                     "metadata_": meta if isinstance(meta, dict) else {},
                 }
             )
-        session.bulk_insert_mappings(SecurityEventRow, records)  # type: ignore[arg-type]
+        session.bulk_insert_mappings(SecurityEventRow, records)
         session.commit()
 
         # 2. Correlate + score incidents ------------------------------------
@@ -126,6 +126,9 @@ def seed_database(
         event_incident_map: dict[str, str] = {}
 
         for i, cand in enumerate(kept):
+            assert cand.first_seen is not None and cand.last_seen is not None, (
+                "correlated candidate must have a time span"
+            )
             member_mask = df["event_id"].isin(cand.member_event_ids)
             sub = df.loc[member_mask]
 
@@ -182,12 +185,12 @@ def seed_database(
             for eid in cand.member_event_ids:
                 event_incident_map[eid] = incident_id
 
-        session.bulk_insert_mappings(IncidentRow, incident_records)  # type: ignore[arg-type]
+        session.bulk_insert_mappings(IncidentRow, incident_records)
 
         # Stamp events with their incident id
         for eid, inc_id in event_incident_map.items():
             session.execute(
-                SecurityEventRow.__table__.update()
+                update(SecurityEventRow)
                 .where(SecurityEventRow.id == eid)
                 .values(incident_id=inc_id)
             )
