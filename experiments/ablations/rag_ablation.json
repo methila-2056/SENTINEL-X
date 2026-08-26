@@ -1,0 +1,38 @@
+{
+  "vector": {
+    "context_precision@k": 0.2,
+    "context_recall": 0.62,
+    "faithfulness": 0.44,
+    "answer_relevance": 0.346,
+    "n_queries": 25,
+    "n_generated_answers": 25,
+    "generation_used": true
+  },
+  "bm25": {
+    "context_precision@k": 0.1373,
+    "context_recall": 0.18,
+    "faithfulness": 0.2,
+    "answer_relevance": 0.1582,
+    "n_queries": 25,
+    "n_generated_answers": 25,
+    "generation_used": true
+  },
+  "hybrid": {
+    "context_precision@k": 0.2,
+    "context_recall": 0.62,
+    "faithfulness": 0.42,
+    "answer_relevance": 0.3303,
+    "n_queries": 25,
+    "n_generated_answers": 25,
+    "generation_used": true
+  },
+  "full": {
+    "context_precision@k": 0.184,
+    "context_recall": 0.58,
+    "faithfulness": 0.5,
+    "answer_relevance": 0.4046,
+    "n_queries": 25,
+    "n_generated_answers": 25,
+    "generation_used": true
+  }
+}

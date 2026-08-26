@@ -1,0 +1,8 @@
+{
+  "max_hops": 4,
+  "attack_hosts": 15,
+  "benign_hosts": 10,
+  "attack_ioc_path_rate": 0.3333,
+  "benign_ioc_path_rate": 0.0,
+  "separation": 0.3333
+}
