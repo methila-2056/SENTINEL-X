@@ -37,9 +37,7 @@ def verify_password(password: str, stored: str) -> bool:
         salt = bytes.fromhex(salt_hex)
     except ValueError:
         return False
-    candidate = hashlib.pbkdf2_hmac(
-        "sha256", password.encode("utf-8"), salt, int(iterations_s)
-    )
+    candidate = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, int(iterations_s))
     return hmac.compare_digest(candidate, expected)
 
 
@@ -48,9 +46,7 @@ def create_access_token(username: str, role: str, expires_minutes: int | None = 
     settings = get_settings()
     now = datetime.now(UTC)
     expire = now + timedelta(
-        minutes=settings.access_token_expire_minutes
-        if expires_minutes is None
-        else expires_minutes
+        minutes=settings.access_token_expire_minutes if expires_minutes is None else expires_minutes
     )
     payload = {"sub": username, "role": role, "iat": now, "exp": expire}
     return jwt.encode(payload, settings.secret_key.get_secret_value(), algorithm=JWT_ALGORITHM)
@@ -59,6 +55,4 @@ def create_access_token(username: str, role: str, expires_minutes: int | None = 
 def decode_token(token: str) -> dict[str, Any]:
     """Decode and verify a JWT. Raises jwt.InvalidTokenError on any problem."""
     settings = get_settings()
-    return jwt.decode(
-        token, settings.secret_key.get_secret_value(), algorithms=[JWT_ALGORITHM]
-    )
+    return jwt.decode(token, settings.secret_key.get_secret_value(), algorithms=[JWT_ALGORITHM])

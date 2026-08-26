@@ -18,8 +18,12 @@ logger = structlog.get_logger(__name__)
 @asynccontextmanager
 async def _lifespan(app: FastAPI):
     from sentinel_x.common.db import get_sync_session
+    from sentinel_x.common.settings import get_settings
     from sentinel_x.data.db.models import UserRow
 
+    secret = get_settings().secret_key.get_secret_value()
+    if len(secret) < 32:
+        logger.warning("weak_jwt_secret", hint="set SECRET_KEY (>= 32 bytes) in production")
     with get_sync_session() as session:
         n_users = session.scalar(select(func.count(UserRow.id)))
     if not n_users:

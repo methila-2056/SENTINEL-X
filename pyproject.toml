@@ -92,6 +92,11 @@ ignore = [
     "E501", # long lines handled by formatter where possible
 ]
 
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection pattern calls Depends() in parameter
+# defaults by design.
+extend-immutable-calls = ["fastapi.Depends"]
+
 [tool.ruff.format]
 quote-style = "double"
 

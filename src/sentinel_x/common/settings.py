@@ -38,7 +38,11 @@ class Settings(BaseSettings):
     embedding_dim: int = 384
 
     # API security
-    secret_key: SecretStr = Field(default=SecretStr("change-me-in-production"))
+    # NOTE: the default exists only so local development boots; production
+    # MUST set SECRET_KEY (>= 32 bytes) via the environment.
+    secret_key: SecretStr = Field(
+        default=SecretStr("insecure-development-secret-change-me-0123456789")
+    )
     access_token_expire_minutes: int = 60
 
 

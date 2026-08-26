@@ -4,19 +4,18 @@ Usage:
     python scripts/create_user.py --username admin --password 'S3cret!' --role admin
 """
 
+import argparse
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-import argparse
-
-from sentinel_x.api.security import hash_password
-from sentinel_x.api.deps import KNOWN_ROLES
-from sentinel_x.common.db import get_sync_session
-from sentinel_x.common.logging import configure_logging, get_logger
-from sentinel_x.data.db.models import UserRow
+from sentinel_x.api.deps import KNOWN_ROLES  # noqa: E402
+from sentinel_x.api.security import hash_password  # noqa: E402
+from sentinel_x.common.db import get_sync_session  # noqa: E402
+from sentinel_x.common.logging import configure_logging, get_logger  # noqa: E402
+from sentinel_x.data.db.models import UserRow  # noqa: E402
 
 logger = get_logger(__name__)
 

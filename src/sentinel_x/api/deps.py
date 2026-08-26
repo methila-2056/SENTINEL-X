@@ -66,3 +66,9 @@ def require_roles(*allowed: str):
         return user
 
     return checker
+
+
+# Module-level singletons so routers can use `Depends(require_admin)` without
+# constructing a new dependency per request.
+require_admin = require_roles(ROLE_ADMIN)
+require_analyst_or_admin = require_roles(ROLE_ANALYST, ROLE_ADMIN)

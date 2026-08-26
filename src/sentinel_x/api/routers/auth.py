@@ -7,7 +7,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 
-from sentinel_x.api.deps import KNOWN_ROLES, ROLE_ADMIN, AuthUser, get_current_user, require_roles
+from sentinel_x.api.deps import (
+    KNOWN_ROLES,
+    AuthUser,
+    get_current_user,
+    require_admin,
+)
 from sentinel_x.api.security import create_access_token, hash_password, verify_password
 from sentinel_x.common.db import get_sync_session
 from sentinel_x.data.db.models import UserRow
@@ -56,7 +61,7 @@ def whoami(user: AuthUser = Depends(get_current_user)) -> dict[str, str]:
 
 @router.post("/users", status_code=status.HTTP_201_CREATED)
 def create_user(
-    body: UserCreateRequest, admin: AuthUser = Depends(require_roles(ROLE_ADMIN))
+    body: UserCreateRequest, admin: AuthUser = Depends(require_admin)
 ) -> dict[str, str]:
     """Admin-only account creation."""
     if body.role not in KNOWN_ROLES:
@@ -78,7 +83,7 @@ def create_user(
 
 
 @router.get("/users")
-def list_users(admin: AuthUser = Depends(require_roles(ROLE_ADMIN))) -> list[dict[str, str]]:
+def list_users(admin: AuthUser = Depends(require_admin)) -> list[dict[str, str]]:
     with get_sync_session() as session:
         rows = session.scalars(select(UserRow).order_by(UserRow.username)).all()
         return [{"username": r.username, "role": r.role} for r in rows]
