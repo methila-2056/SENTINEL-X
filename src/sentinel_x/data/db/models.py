@@ -124,6 +124,7 @@ class IncidentRow(Base):
     attack_probability: Mapped[float | None] = mapped_column(Float)
     correlated_event_ids: Mapped[list] = mapped_column(JSONB, default=list)
     entities: Mapped[dict] = mapped_column(JSONB, default=dict)  # users/hosts/ips involved
+    signals: Mapped[dict] = mapped_column(JSONB, default=dict)  # behavioral risk signals
     ground_truth_incident_id: Mapped[str | None] = mapped_column(String(64), index=True)
 
 

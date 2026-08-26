@@ -22,6 +22,7 @@ class IncidentOut(BaseModel):
     status: str | None = None
     severity_label: str | None = None
     risk_score: float | None = None
+    anomaly_score: float | None = None
     attack_probability: float | None = None
     n_events: int = 0
 
@@ -43,6 +44,7 @@ def list_incidents(
                 status=row.status,
                 severity_label=row.severity_label,
                 risk_score=row.risk_score,
+                anomaly_score=row.anomaly_score,
                 attack_probability=row.attack_probability,
                 n_events=len(row.correlated_event_ids or []),
             )
@@ -65,7 +67,10 @@ def get_incident(incident_id: str) -> dict[str, Any]:
             "status": row.status,
             "severity_label": row.severity_label,
             "risk_score": row.risk_score,
+            "anomaly_score": row.anomaly_score,
             "attack_probability": row.attack_probability,
+            "signals": row.signals or {},
             "correlated_event_ids": (row.correlated_event_ids or [])[:100],
             "entities": row.entities,
+            "ground_truth_incident_id": row.ground_truth_incident_id,
         }

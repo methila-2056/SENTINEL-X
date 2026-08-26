@@ -3,7 +3,7 @@
 import zlib
 
 import structlog
-from sqlalchemy import least
+from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
@@ -128,7 +128,7 @@ def extract_entities_and_edges(events, session: Session) -> tuple[int, int]:
                 index_elements=[EntityRow.id],
                 set_={
                     "last_seen": ent["last_seen"],
-                    "first_seen": least(EntityRow.first_seen, ent["first_seen"]),
+                    "first_seen": func.least(EntityRow.first_seen, ent["first_seen"]),
                 },
             )
         )

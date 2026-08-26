@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from sentinel_x.api.routers import agent, events, incidents, search
+from sentinel_x.api.routers import agent, events, graph, incidents, search
 
 
 def create_app() -> FastAPI:
@@ -24,6 +24,7 @@ def create_app() -> FastAPI:
     app.include_router(events.router, prefix="/api/events", tags=["events"])
     app.include_router(search.router, prefix="/api/knowledge", tags=["knowledge"])
     app.include_router(agent.router, prefix="/api/investigations", tags=["investigations"])
+    app.include_router(graph.router, prefix="/api", tags=["graph"])
 
     @app.get("/api/health")
     def health() -> dict[str, str]:
