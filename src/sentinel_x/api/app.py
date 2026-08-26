@@ -12,7 +12,7 @@ from sqlalchemy import func, select
 from sentinel_x.api.audit import AuditLogMiddleware
 from sentinel_x.api.deps import get_current_user
 from sentinel_x.api.ratelimit import RateLimitMiddleware
-from sentinel_x.api.routers import agent, events, graph, incidents, ml, search
+from sentinel_x.api.routers import admin, agent, events, graph, incidents, ml, search
 from sentinel_x.api.routers.health import router as health_router
 
 logger = structlog.get_logger(__name__)
@@ -100,6 +100,14 @@ def create_app() -> FastAPI:
     # /api/auth/token is public; the remaining auth endpoints carry their own
     # role requirements.
     app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+
+    # Admin-only endpoints (audit log viewer)
+    app.include_router(
+        admin.router,
+        prefix="/api/admin",
+        tags=["admin"],
+        dependencies=[Depends(get_current_user)],
+    )
 
     @app.get("/api/health")
     def health() -> dict[str, str]:

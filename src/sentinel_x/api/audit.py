@@ -41,12 +41,26 @@ class AuditEntry:
     user: str | None = None
 
 
+# Module-level singleton: the middleware registers itself here on init so
+# the admin viewer router can access the buffer without app.state hacks.
+_audit_instance: AuditLogMiddleware | None = None
+
+
+def get_audit_buffer() -> list[AuditEntry] | None:
+    """Return a snapshot of the audit ring buffer, or None if middleware not loaded."""
+    if _audit_instance is None:
+        return None
+    return list(_audit_instance._buffer)
+
+
 class AuditLogMiddleware(BaseHTTPMiddleware):
     """Logs structured audit entries for every non-exempt request."""
 
     def __init__(self, app, *, max_buffer: int = 500):
         super().__init__(app)
         self._buffer: deque[AuditEntry] = deque(maxlen=max_buffer)
+        global _audit_instance
+        _audit_instance = self
 
     @property
     def recent_entries(self) -> list[AuditEntry]:
