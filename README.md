@@ -94,8 +94,8 @@ src/sentinel_x/   Core Python package
   data/           Ingestion, normalization, canonical schemas
   ml/             Features, training, models, inference
   retrieval/      BM25, vector, hybrid fusion, reranking
-  rag/            Document ingestion, context building, generation
-  graph/          Entity extraction, relationships, traversal
+  rag/            Document ingestion (ATT&CK / Sigma / playbooks), chunking, embeddings
+  graph/          Entity extraction, recursive traversal
   incidents/      Correlation engine and risk scoring
   agents/         Planner, tools, workflows, verification
   evaluation/     ML / retrieval / RAG / agent metrics
