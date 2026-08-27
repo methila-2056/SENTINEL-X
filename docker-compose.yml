@@ -84,12 +84,10 @@ services:
     depends_on:
       - api
     networks:
-      - frontend
+      - backend
 
 networks:
   backend:
-    driver: bridge
-  frontend:
     driver: bridge
 
 volumes:

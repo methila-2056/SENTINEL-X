@@ -7,12 +7,12 @@ interface Props {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  user: '#38bdf8',
+  user: '#00e5ff',
   host: '#a78bfa',
-  ip: '#facc15',
-  ioc: '#f43f5e',
-  process: '#4ade80',
-  file: '#fb923c',
+  ip: '#ffc24b',
+  ioc: '#ff3b5c',
+  process: '#00ff9c',
+  file: '#ff8a3d',
 }
 
 /** Deterministic radial layout — seeds at center, others on concentric rings. */
@@ -63,11 +63,11 @@ export function GraphView({ data, width = 720, height = 430 }: Props) {
         if (!a || !b) return null
         return (
           <g key={`e${i}`}>
-            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#243044" strokeWidth={1.4} />
+            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#1c3a52" strokeWidth={1.4} />
             <text
               x={(a.x + b.x) / 2}
               y={(a.y + b.y) / 2 - 3}
-              fill="#5c7396"
+              fill="#5f7f99"
               fontSize="9.5"
               textAnchor="middle"
             >
@@ -79,17 +79,17 @@ export function GraphView({ data, width = 720, height = 430 }: Props) {
       {data.nodes.map((n) => {
         const p = positions.get(n.id)
         if (!p) return null
-        const color = n.malicious ? '#f43f5e' : (TYPE_COLORS[n.type] ?? '#8aa0bd')
+        const color = n.malicious ? '#ff3b5c' : (TYPE_COLORS[n.type] ?? '#5f7f99')
         const r = n.malicious ? 13 : 10
         return (
           <g key={n.id}>
             <circle cx={p.x} cy={p.y} r={r} fill={color} opacity={0.92}>
               <title>{`${n.type}: ${n.name}${n.malicious ? ' (malicious)' : ''}`}</title>
             </circle>
-            <text x={p.x} y={p.y + r + 12} fill="#c7d6ea" fontSize="10" textAnchor="middle">
+            <text x={p.x} y={p.y + r + 12} fill="#c9e6f5" fontSize="10" textAnchor="middle">
               {n.name.length > 18 ? `${n.name.slice(0, 17)}…` : n.name}
             </text>
-            <text x={p.x} y={p.y - r - 6} fill="#5c7396" fontSize="9" textAnchor="middle">
+            <text x={p.x} y={p.y - r - 6} fill="#5f7f99" fontSize="9" textAnchor="middle">
               {n.type}
             </text>
           </g>

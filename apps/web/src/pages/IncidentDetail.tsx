@@ -129,15 +129,17 @@ export function IncidentDetail() {
         </div>
       </div>
 
-      <button className="btn" onClick={startInvestigation} disabled={running}>
-        {running ? 'Agent investigating…' : 'Run AI investigation'}
-      </button>
-      {job && (
-        <span style={{ marginLeft: 12 }} className="muted">
-          job {job.job_id} — state: <b>{job.state}</b>
-          {job.elapsed_s != null ? ` (${job.elapsed_s}s)` : ''}
-        </span>
-      )}
+      <div className="btn-row">
+        <button className="btn btn-primary" onClick={startInvestigation} disabled={running}>
+          {running ? 'Agent investigating…' : 'Run AI investigation'}
+        </button>
+        {job && (
+          <span className="muted">
+            job {job.job_id} — state: <b>{job.state}</b>
+            {job.elapsed_s != null ? ` (${job.elapsed_s}s)` : ''}
+          </span>
+        )}
+      </div>
 
       {report && <ReportPanel report={report} />}
 
