@@ -129,7 +129,7 @@ export function IncidentDetail() {
         </div>
       </div>
 
-      <button className="btn" onClick={startInvestigation} disabled={running}>
+      <button className="btn btn-primary" onClick={startInvestigation} disabled={running}>
         {running ? 'Agent investigating…' : 'Run AI investigation'}
       </button>
       {job && (
