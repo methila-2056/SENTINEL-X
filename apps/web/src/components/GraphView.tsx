@@ -63,11 +63,11 @@ export function GraphView({ data, width = 720, height = 430 }: Props) {
         if (!a || !b) return null
         return (
           <g key={`e${i}`}>
-            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#243044" strokeWidth={1.4} />
+            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#cbd5e1" strokeWidth={1.4} />
             <text
               x={(a.x + b.x) / 2}
               y={(a.y + b.y) / 2 - 3}
-              fill="#5c7396"
+              fill="#64748b"
               fontSize="9.5"
               textAnchor="middle"
             >
@@ -86,10 +86,10 @@ export function GraphView({ data, width = 720, height = 430 }: Props) {
             <circle cx={p.x} cy={p.y} r={r} fill={color} opacity={0.92}>
               <title>{`${n.type}: ${n.name}${n.malicious ? ' (malicious)' : ''}`}</title>
             </circle>
-            <text x={p.x} y={p.y + r + 12} fill="#c7d6ea" fontSize="10" textAnchor="middle">
+            <text x={p.x} y={p.y + r + 12} fill="#334155" fontSize="10" textAnchor="middle">
               {n.name.length > 18 ? `${n.name.slice(0, 17)}…` : n.name}
             </text>
-            <text x={p.x} y={p.y - r - 6} fill="#5c7396" fontSize="9" textAnchor="middle">
+            <text x={p.x} y={p.y - r - 6} fill="#64748b" fontSize="9" textAnchor="middle">
               {n.type}
             </text>
           </g>
