@@ -25,6 +25,7 @@ export function Investigations() {
   return (
     <>
       <h1>Investigation History</h1>
+      <p className="page-subtitle">Agent-driven investigations and their outcomes.</p>
       <div className="card">
         {loading && <Spinner label="Loading investigations…" />}
         {error && (

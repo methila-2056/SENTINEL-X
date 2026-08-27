@@ -31,7 +31,7 @@ export function KnowledgeSearch() {
   return (
     <>
       <h1>Threat Intelligence Search</h1>
-      <p className="muted" style={{ marginTop: -8 }}>
+      <p className="page-subtitle">
         Hybrid retrieval: BM25 full-text + pgvector semantic search fused with RRF.
       </p>
       <form

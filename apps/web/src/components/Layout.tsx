@@ -9,20 +9,23 @@ export function Layout({ children, onLogout }: { children: ReactNode; onLogout: 
           SENTINEL<span>-X</span>
         </div>
         <div className="tagline">Security Incident Intelligence</div>
+        <div className="sys-status">
+          <span className="dot" /> SYSTEM ONLINE
+        </div>
         <NavLink to="/incidents" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
-          Incidents
+          <span className="nav-ico">▣</span> Incidents
         </NavLink>
         <NavLink
           to="/investigations"
           className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
         >
-          Investigations
+          <span className="nav-ico">◈</span> Investigations
         </NavLink>
         <NavLink
           to="/knowledge"
           className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
         >
-          Threat Intelligence
+          <span className="nav-ico">◉</span> Threat Intelligence
         </NavLink>
         <button className="logout-button" type="button" onClick={onLogout}>
           Sign out
