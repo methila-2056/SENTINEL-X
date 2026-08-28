@@ -28,6 +28,7 @@ export function Incidents() {
   return (
     <>
       <h1>Incidents</h1>
+      <p className="page-subtitle">ML-scored abnormal activity, correlated into incidents.</p>
       <div className="card">
         {loading && <Spinner label="Loading incidents…" />}
         {error && (

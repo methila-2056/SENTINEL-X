@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { login } from '../auth'
+import { ThemeToggle } from '../components/ThemeToggle'
 
 export function Login() {
   const [username, setUsername] = useState('')
@@ -24,6 +25,7 @@ export function Login() {
   return (
     <main className="login-main">
       <form className="login-card" onSubmit={onSubmit}>
+        <ThemeToggle />
         <div className="logo">
           SENTINEL<span>-X</span>
         </div>
