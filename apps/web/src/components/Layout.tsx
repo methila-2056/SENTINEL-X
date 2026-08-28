@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
+import { ThemeToggle } from './ThemeToggle'
 
 export function Layout({ children, onLogout }: { children: ReactNode; onLogout: () => void }) {
   return (
@@ -9,6 +10,7 @@ export function Layout({ children, onLogout }: { children: ReactNode; onLogout: 
           SENTINEL<span>-X</span>
         </div>
         <div className="tagline">Security Incident Intelligence</div>
+        <ThemeToggle />
         <div className="sys-status">
           <span className="dot" /> SYSTEM ONLINE
         </div>
